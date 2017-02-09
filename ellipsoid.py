@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 # Python porting of c-code from matrix_statistics.c,
 # part of the NonLinLoc package, written by Anthony Lomax
 from __future__ import division
@@ -17,6 +18,7 @@ class Ellipsoid3D():
     len3 = None
 
     def __str__(self):
+        """String representation."""
         s = 'az1: %f\n' % self.az1
         s += 'dip1: %f\n' % self.dip1
         s += 'len1: %f\n' % self.len1
@@ -31,7 +33,9 @@ class Vect3D():
     x = None
     y = None
     z = None
+
     def __str__(self):
+        """String representation."""
         s = 'x: %f y: %f z: %f' % (self.x, self.y, self.z)
         return s
 
@@ -91,12 +95,9 @@ def toEllipsoid3D(ax1, ax2, center, npts):
         cosang = cos(angle)
         sinang = sin(angle)
         vect = Vect3D()
-        vect.x = center.x \
-                 + ax1.x * cosang + ax2.x * sinang
-        vect.y = center.y \
-                 + ax1.y * cosang + ax2.y * sinang
-        vect.z = center.z \
-                 + ax1.z * cosang + ax2.z * sinang
+        vect.x = center.x + ax1.x * cosang + ax2.x * sinang
+        vect.y = center.y + ax1.y * cosang + ax2.y * sinang
+        vect.z = center.z + ax1.z * cosang + ax2.z * sinang
         ellArray.append(vect)
         angle += d_angle
 
@@ -130,9 +131,9 @@ def main():
     ell13 = np.array([(vect.x, vect.y) for vect in ellArray13])
     ell23 = np.array([(vect.x, vect.y) for vect in ellArray23])
 
-    plt.plot(ell12[:,0], ell12[:,1])
-    plt.plot(ell13[:,0], ell13[:,1])
-    plt.plot(ell23[:,0], ell23[:,1])
+    plt.plot(ell12[:, 0], ell12[:, 1])
+    plt.plot(ell13[:, 0], ell13[:, 1])
+    plt.plot(ell23[:, 0], ell23[:, 1])
 
     plt.show()
 
