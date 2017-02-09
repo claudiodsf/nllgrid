@@ -1,10 +1,14 @@
 # -*- coding: utf8 -*-
-# NLLGrid.py
-#
-# Reading and writing of NLL grid files
-#
-# (c) 2013-2017 - Natalia Poiata <poiata@ipgp.fr>,
-#                 Claudio Satriano <satriano@ipgp.fr>
+"""
+Reading and writing of NonLinLoc grid files.
+
+:copyright:
+    2013-2017 Claudio Satriano <satriano@ipgp.fr>,
+              Natalia Poiata <poiata@ipgp.fr>
+:license:
+    CeCILL Free Software License Agreement, Version 2.1
+    (http://www.cecill.info/index.en.html)
+"""
 import math
 import numpy as np
 from scipy.ndimage import zoom
