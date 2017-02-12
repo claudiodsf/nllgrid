@@ -13,7 +13,13 @@ import math
 import numpy as np
 from scipy.ndimage import zoom
 from array import array
+from ctypes import Union, c_float, c_ushort
 from copy import deepcopy
+
+
+class TakeOffAngles(Union):
+    _fields_ = [('fval', c_float),
+                ('ival', c_ushort*2)]
 
 
 class NLLGrid():
@@ -78,7 +84,9 @@ class NLLGrid():
 
     def __getitem__(self, key):
         """Make the grid object array-like."""
-        if self.array is not None:
+        if self.type in ['ANGLE', 'ANGLE2D']:
+            return self.dip[key]
+        elif self.array is not None:
             return self.array[key]
 
     def remove_extension(self, basename):
@@ -147,7 +155,23 @@ class NLLGrid():
         with open(filename, 'rb') as fp:
             buf = array('f')
             buf.fromfile(fp, self.nx * self.ny * self.nz)
-        self.array = np.array(buf).reshape(self.nx, self.ny, self.nz)
+        if self.type in ['ANGLE', 'ANGLE2D']:
+            self.take_off_angles = (TakeOffAngles * len(buf))()
+            for _i, _val in enumerate(buf):
+                self.take_off_angles[_i].fval = _val
+            self.azimuth = np.array(
+                [t.ival[1]/10. for t in self.take_off_angles]
+                ).reshape(self.nx, self.ny, self.nz)
+            self.dip = np.array(
+                [(t.ival[0]//16)/10. for t in self.take_off_angles]
+                ).reshape(self.nx, self.ny, self.nz)
+            self.quality = np.array(
+                [t.ival[0] % 16 for t in self.take_off_angles]
+                ).reshape(self.nx, self.ny, self.nz)
+            self.azimuth[self.quality == 0] = np.nan
+            self.dip[self.quality == 0] = np.nan
+        else:
+            self.array = np.array(buf).reshape(self.nx, self.ny, self.nz)
 
     def write_hdr_file(self, basename=None):
         """Write header file of NLL grid format."""
@@ -174,13 +198,14 @@ class NLLGrid():
 
     def write_buf_file(self, basename=None):
         """Write buf file as a 3d array."""
+        if self.type in ['ANGLE', 'ANGLE2D']:
+            raise NotImplementedError(
+                'Writing buf file not implemented for ANGLE grid.')
         if self.array is None:
             return
-
         if basename is not None:
             self.basename = basename
         filename = self.basename + '.buf'
-
         with open(filename, 'wb') as fp:
             self.array.astype(np.float32).tofile(fp)
 
@@ -318,11 +343,14 @@ class NLLGrid():
         self.ellipsoid = ell
         return ell
 
-    def get_value(self, x, y, z):
-        if self.array is None:
-            return
+    def get_value(self, x, y, z, array=None):
+        if array is None:
+            if self.array is None:
+                return
+            else:
+                array = self.array
         i, j, k = self.get_ijk(x, y, z)
-        return self.array[i, j, k]
+        return array[i, j, k]
 
     def get_extent(self):
         extent = (self.x_orig - self.dx / 2,
@@ -350,10 +378,15 @@ class NLLGrid():
         return self.get_extent()[4:] + self.get_extent()[2:4]
 
     def max(self):
+        if self.type in ['ANGLE', 'ANGLE2D']:
+            return self.dip.max()
         if self.array is not None:
             return self.array.max()
 
     def resample(self, dx, dy, dz):
+        if self.type in ['ANGLE', 'ANGLE2D']:
+            raise NotImplementedError(
+                'Resample not implemented for ANGLE grid.')
         zoom_x = self.dx / dx
         zoom_y = self.dy / dy
         zoom_z = self.dz / dz
@@ -414,9 +447,15 @@ class NLLGrid():
         return ax_xy, ax_xz, ax_yz, ax_cb
 
     def plot(self, slice_index=None, handle=False, figure=None, ax_xy=None,
-             vmin=None, vmax=None, cmap=None):
+             vmin=None, vmax=None, cmap=None, array=None):
         import matplotlib.pyplot as plt
         from matplotlib import ticker
+
+        if array is None:
+            if self.array is None:
+                return
+            else:
+                array = self.array
 
         ax_xy, ax_xz, ax_yz, ax_cb = self.get_plot_axes(figure, ax_xy)
         if figure is None:
@@ -429,17 +468,17 @@ class NLLGrid():
         if slice_index == 'min':
             slice_index = self.get_ijk_min()
 
-        hnd = ax_xy.imshow(np.transpose(self.array[:, :, slice_index[2]]),
+        hnd = ax_xy.imshow(np.transpose(array[:, :, slice_index[2]]),
                            vmin=vmin, vmax=vmax, cmap=cmap,
                            origin='lower', extent=self.get_xy_extent(),
                            zorder=-10)
         ax_xy.set_adjustable('box-forced')
-        ax_xz.imshow(np.transpose(self.array[:, slice_index[1], :]),
+        ax_xz.imshow(np.transpose(array[:, slice_index[1], :]),
                      vmin=vmin, vmax=vmax, cmap=cmap,
                      origin='lower', extent=self.get_xz_extent(),
                      aspect='auto', zorder=-10)
         ax_xz.set_adjustable('box-forced')
-        ax_yz.imshow(self.array[slice_index[0], :, :],
+        ax_yz.imshow(array[slice_index[0], :, :],
                      vmin=vmin, vmax=vmax, cmap=cmap,
                      origin='lower', extent=self.get_zy_extent(),
                      aspect='auto', zorder=-10)
