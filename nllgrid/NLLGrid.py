@@ -379,9 +379,9 @@ class NLLGrid():
 
     def max(self):
         if self.type in ['ANGLE', 'ANGLE2D']:
-            return self.dip.max()
+            return np.nanmax(self.dip)
         if self.array is not None:
-            return self.array.max()
+            return np.nanmax(self.array)
 
     def resample(self, dx, dy, dz):
         if self.type in ['ANGLE', 'ANGLE2D']:
@@ -468,6 +468,11 @@ class NLLGrid():
         if slice_index == 'min':
             slice_index = self.get_ijk_min()
 
+        if vmin is None:
+            vmin = np.nanmin(array)
+        if vmax is None:
+            vmax = np.nanmax(array)
+
         hnd = ax_xy.imshow(np.transpose(array[:, :, slice_index[2]]),
                            vmin=vmin, vmax=vmax, cmap=cmap,
                            origin='lower', extent=self.get_xy_extent(),
@@ -490,7 +495,7 @@ class NLLGrid():
         ax_xz.axhline(z_slice, color='w', linestyle='dashed', zorder=-1)
         ax_yz.axvline(z_slice, color='w', linestyle='dashed', zorder=-1)
 
-        fmt = '%.1e' if self.max() <= 0.01 else '%.2f'
+        fmt = '%.1e' if np.nanmax(array) <= 0.01 else '%.2f'
         cb = figure.colorbar(
             hnd, cax=ax_cb, orientation='horizontal', format=fmt)
         cb.locator = ticker.LinearLocator(numticks=3)
