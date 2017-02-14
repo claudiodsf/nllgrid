@@ -550,6 +550,36 @@ class NLLGrid():
         ax_yz.plot(ell13[:, 1], ell13[:, 0])
         ax_yz.plot(ell23[:, 1], ell23[:, 0])
 
+    def project(self, lon, lat):
+        """Project lon, lat into grid coordinates."""
+        from pyproj import Proj
+        from collections import Iterable
+        if self.proj_name == 'LAMBERT':
+            p = Proj(proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                     lat_1=self.first_std_paral, lat_2=self.second_std_paral,
+                     ellps='WGS84')
+        else:
+            raise ValueError('Projection not supported: %s' % self.proj_name)
+        x, y = p(lon, lat)
+        x = np.array(x)
+        y = np.array(y)
+        x[np.isnan(lon)] = np.nan
+        y[np.isnan(lat)] = np.nan
+        x /= 1000.
+        y /= 1000.
+        # Try to return the same type of lon, lat
+        if not isinstance(lon, np.ndarray):
+            if isinstance(lon, Iterable):
+                x = type(lon)(x)
+            else:
+                x = float(x)
+        if not isinstance(lat, np.ndarray):
+            if isinstance(lat, Iterable):
+                y = type(lat)(y)
+            else:
+                y = float(y)
+        return x, y
+
     def copy(self):
         return deepcopy(self)
 
