@@ -9,6 +9,9 @@ Reading and writing of NonLinLoc grid files.
     CeCILL Free Software License Agreement, Version 2.1
     (http://www.cecill.info/index.en.html)
 """
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 import math
 import numpy as np
 from scipy.ndimage import zoom
@@ -618,7 +621,7 @@ def main():
     grd = NLLGrid(nx=nx, ny=ny, nz=nz,
                   dx=1, dy=1, dz=1,
                   x_orig=x_orig, y_orig=y_orig)
-    print grd
+    print(grd)
     grd.init_array()
     grd.array = gauss3D((nx, ny, nz), 20, 10, 2, 30)
 

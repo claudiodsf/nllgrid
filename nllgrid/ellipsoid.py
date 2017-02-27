@@ -9,7 +9,9 @@ part of the NonLinLoc package, written by Anthony Lomax.
     CeCILL Free Software License Agreement, Version 2.1
     (http://www.cecill.info/index.en.html)
 """
-from __future__ import division
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 from math import pi, cos, sin
 
 
