@@ -18,6 +18,8 @@ from scipy.ndimage import zoom
 from array import array
 from ctypes import Union, c_float, c_ushort
 from copy import deepcopy
+from pyproj import Proj
+from collections import Iterable
 
 
 class TakeOffAngles(Union):
@@ -555,8 +557,6 @@ class NLLGrid():
 
     def project(self, lon, lat):
         """Project lon, lat into grid coordinates."""
-        from pyproj import Proj
-        from collections import Iterable
         if self.proj_name == 'LAMBERT':
             p = Proj(proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
                      lat_1=self.first_std_paral, lat_2=self.second_std_paral,
