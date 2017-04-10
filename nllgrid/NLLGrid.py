@@ -467,7 +467,7 @@ class NLLGrid():
             figure = ax_xy.get_figure()
 
         if slice_index is None:
-            slice_index = map(int, (self.nx/2, self.ny/2, self.nz/2))
+            slice_index = list(map(int, (self.nx/2, self.ny/2, self.nz/2)))
         if slice_index == 'max':
             slice_index = self.get_ijk_max()
         if slice_index == 'min':
