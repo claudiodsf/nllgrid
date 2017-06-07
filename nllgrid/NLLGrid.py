@@ -558,9 +558,31 @@ class NLLGrid():
     def project(self, lon, lat):
         """Project lon, lat into grid coordinates."""
         if self.proj_name == 'LAMBERT':
+            ellipsoids = {
+                'WGS-84': 'WGS84',
+                'GRS-80': 'GRS80',
+                'WGS-72': 'WGS72',
+                'Australian': 'aust_SA',
+                'Krasovsky': 'krass',
+                'International': 'new_intl',
+                'Hayford-1909': 'intl',
+                'Clarke-1880': 'clrk80',
+                'Clarke-1866': 'clrk66',
+                'Airy': 'airy',
+                'Bessel': 'bessel',
+                # 'Hayford-1830':
+                'Sphere': 'sphere'
+                }
+            try:
+                ellps = ellipsoids[self.proj_ellipsoid]
+            except KeyError:
+                raise ValueError(
+                    'Ellipsoid not supported: %s' % self.proj_ellipsoid)
             p = Proj(proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
                      lat_1=self.first_std_paral, lat_2=self.second_std_paral,
-                     ellps='WGS84')
+                     ellps=ellps)
+        elif self.proj_name == 'SIMPLE':
+            p = Proj(proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
         else:
             raise ValueError('Projection not supported: %s' % self.proj_name)
         x, y = p(lon, lat)
