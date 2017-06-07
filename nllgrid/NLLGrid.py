@@ -22,6 +22,45 @@ from pyproj import Proj
 from collections import Iterable
 
 
+valid_grid_types = (
+    'VELOCITY',
+    'VELOCITY_METERS',
+    'SLOWNESS',
+    'VEL2',
+    'SLOW2',
+    'SLOW2_METERS',
+    'SLOW_LEN',
+    'TIME',
+    'TIME2D',
+    'PROB_DENSITY',
+    'MISFIT',
+    'ANGLE',
+    'ANGLE2D'
+)
+
+valid_projections = (
+    'NONE',
+    'SIMPLE',
+    'LAMBERT'
+)
+
+valid_ellipsoids = (
+    'WGS-84',
+    'GRS-80',
+    'WGS-72',
+    'Australian',
+    'Krasovsky',
+    'International',
+    'Hayford-1909',
+    'Clarke-1880',
+    'Clarke-1866',
+    'Airy',
+    'Bessel',
+    'Hayford-1830',
+    'Sphere'
+)
+
+
 class TakeOffAngles(Union):
     _fields_ = [('fval', c_float),
                 ('ival', c_ushort*2)]
@@ -48,9 +87,9 @@ class NLLGrid():
         self.dx = dx
         self.dy = dy
         self.dz = dz
-        self.type = None
-        self.proj_name = None
-        self.proj_ellipsoid = None
+        self.__type = None
+        self.__proj_name = None
+        self.__proj_ellipsoid = None
         self.orig_lat = float(0)
         self.orig_lon = float(0)
         self.first_std_paral = 0
@@ -60,7 +99,7 @@ class NLLGrid():
         self.sta_x = float(0)
         self.sta_y = float(0)
         self.sta_z = float(0)
-        self.array = None
+        self.__array = None
         self.xyz_mean = None
         self.xyz_cov = None
         self.ellipsoid = None
@@ -91,6 +130,68 @@ class NLLGrid():
             return self.dip[key]
         elif self.array is not None:
             return self.array[key]
+
+    @property
+    def array(self):
+        return self.__array
+
+    @array.setter
+    def array(self, array_data):
+        array_data = np.asarray(array_data)
+        if array_data.ndim != 3:
+            raise ValueError('Only 3D arrays are supported')
+        if None in (self.nx, self.ny, self.nz):
+            self.nx, self.ny, self.nz = array_data.shape
+        self.__array = array_data
+
+    @property
+    def type(self):
+        return self.__type
+
+    @type.setter
+    def type(self, grid_type):
+        try:
+            grid_type = grid_type.upper()
+        except AttributeError:
+            raise ValueError('Grid type must be a string')
+        if grid_type not in valid_grid_types:
+            msg = 'Invalid grid type: {}\n'.format(grid_type)
+            msg += 'Valid grid types are: {}'.format(valid_grid_types)
+            raise ValueError(msg)
+        self.__type = grid_type
+
+    @property
+    def proj_name(self):
+        return self.__proj_name
+
+    @proj_name.setter
+    def proj_name(self, pname):
+        try:
+            pname = pname.upper()
+        except AttributeError:
+            raise ValueError('Projection name must be a string')
+        if pname not in valid_projections:
+            msg = 'Invalid projection name: {}\n'.format(pname)
+            msg += 'Valid projection names: {}'.format(valid_projections)
+            raise ValueError(msg)
+        self.__proj_name = pname
+
+    @property
+    def proj_ellipsoid(self):
+        return self.__proj_ellipsoid
+
+    @proj_ellipsoid.setter
+    def proj_ellipsoid(self, ellipsoid):
+        try:
+            # here we just use upper() to check if ellipsoid is a string
+            ellipsoid.upper()
+        except AttributeError:
+            raise ValueError('Ellipsoid must be a string')
+        if ellipsoid not in valid_ellipsoids:
+            msg = 'Invalid ellipsoid: {}\n'.format(ellipsoid)
+            msg += 'Valid ellipsoids: {}'.format(valid_ellipsoids)
+            raise ValueError(msg)
+        self.__proj_ellipsoid = ellipsoid
 
     def remove_extension(self, basename):
         """Remove '.hdr' or '.buf' suffixes, if there."""
