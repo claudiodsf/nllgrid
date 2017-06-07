@@ -592,6 +592,12 @@ class NLLGrid():
         y[np.isnan(lat)] = np.nan
         x /= 1000.
         y /= 1000.
+        # inverse rotation
+        theta = np.radians(self.map_rot)
+        x1 = x*np.cos(theta) + y*np.sin(theta)
+        y1 = -x*np.sin(theta) + y*np.cos(theta)
+        x = x1
+        y = y1
         # Try to return the same type of lon, lat
         if not isinstance(lon, np.ndarray):
             if isinstance(lon, Iterable):
