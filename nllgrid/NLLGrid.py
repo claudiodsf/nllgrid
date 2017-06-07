@@ -73,18 +73,16 @@ class NLLGrid():
 
     def __str__(self):
         """Info string."""
-        s = 'basename: %s\n' % self.basename
-        s += 'nx: %d ny: %d nz: %d\n'\
-            % (self.nx, self.ny, self.nz)
-        s += 'x_orig: %f y_orig: %f z_orig: %f\n'\
-            % (self.x_orig, self.y_orig, self.z_orig)
-        s += 'dx: %f dy: %f dz: %f\n'\
-            % (self.dx, self.dy, self.dz)
-        s += 'grid_type: %s\n' % self.type
+        s = 'basename: {}\n'.format(self.basename)
+        s += 'nx: {} ny: {} nz: {}\n'.format(self.nx, self.ny, self.nz)
+        s += 'x_orig: {} y_orig: {} z_orig: {}\n'.format(
+            self.x_orig, self.y_orig, self.z_orig)
+        s += 'dx: {} dy: {} dz: {}\n'.format(self.dx, self.dy, self.dz)
+        s += 'grid_type: {}\n'.format(self.type)
         if self.station is not None:
-            s += 'station: %s sta_x: %f sta_y: %f sta_z: %f\n'\
-                    % (self.station, self.sta_x, self.sta_y, self.sta_z)
-        s += 'transform: %s' % self.get_transform_line()
+            s += 'station: {} sta_x: {} sta_y: {} sta_z: {}\n'.format(
+                self.station, self.sta_x, self.sta_y, self.sta_z)
+        s += 'transform: {}'.format(self.get_transform_line())
         return s
 
     def __getitem__(self, key):
@@ -185,17 +183,18 @@ class NLLGrid():
         filename = self.basename + '.hdr'
 
         lines = []
-        lines.append('%d %d %d  %.6f %.6f %.6f  %.6f %.6f %.6f %s\n' %
-                     (self.nx, self.ny, self.nz,
-                      self.x_orig, self.y_orig, self.z_orig,
-                      self.dx, self.dy, self.dz,
-                      self.type))
+        lines.append('{} {} {}  {:.6f} {:.6f} {:.6f}  '
+                     '{:.6f} {:.6f} {:.6f} {}\n'.format(
+                        self.nx, self.ny, self.nz,
+                        self.x_orig, self.y_orig, self.z_orig,
+                        self.dx, self.dy, self.dz,
+                        self.type))
         if self.station is not None:
-            lines.append('%s %.6f %.6f %.6f\n' %
-                         (self.station, self.sta_x, self.sta_y, self.sta_z))
+            lines.append('{} {:.6f} {:.6f} {:.6f}\n'.format(
+                self.station, self.sta_x, self.sta_y, self.sta_z))
         line = self.get_transform_line()
         if line is not None:
-            lines.append('%s\n' % line)
+            lines.append('{}\n'.format(line))
 
         with open(filename, 'w') as fp:
             for line in lines:
@@ -218,16 +217,18 @@ class NLLGrid():
         if self.proj_name == 'NONE':
             return 'TRANSFORM  NONE'
         if self.proj_name == 'SIMPLE':
-            line = 'TRANSFORM  SIMPLE  ' +\
-                   'LatOrig %.6f  LongOrig %.6f  RotCW %.6f' %\
-                    (self.orig_lat, self.orig_lon, self.map_rot)
+            line = 'TRANSFORM  SIMPLE  '
+            line += 'LatOrig {:.6f}  LongOrig {:.6f}  RotCW {:.6f}'.format(
+                self.orig_lat, self.orig_lon, self.map_rot)
             return line
         if self.proj_name == 'LAMBERT':
-            line = 'TRANSFORM  LAMBERT RefEllipsoid %s  ' % self.proj_ellipsoid
-            line += 'LatOrig %.6f  LongOrig %.6f  ' %\
-                    (self.orig_lat, self.orig_lon)
-            line += 'FirstStdParal %.6f  SecondStdParal %.6f  RotCW %.6f' %\
-                    (self.first_std_paral, self.second_std_paral, self.map_rot)
+            line = 'TRANSFORM  LAMBERT RefEllipsoid {}  '.format(
+                self.proj_ellipsoid)
+            line += 'LatOrig {:.6f}  LongOrig {:.6f}  '.format(
+                self.orig_lat, self.orig_lon)
+            line += 'FirstStdParal {:.6f}  SecondStdParal {:.6f}  '.format(
+                self.first_std_paral, self.second_std_paral)
+            line += 'RotCW {:.6f}'.format(self.map_rot)
             return line
 
     def get_xyz(self, i, j, k):
@@ -577,14 +578,15 @@ class NLLGrid():
                 ellps = ellipsoids[self.proj_ellipsoid]
             except KeyError:
                 raise ValueError(
-                    'Ellipsoid not supported: %s' % self.proj_ellipsoid)
+                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
             p = Proj(proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
                      lat_1=self.first_std_paral, lat_2=self.second_std_paral,
                      ellps=ellps)
         elif self.proj_name == 'SIMPLE':
             p = Proj(proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
         else:
-            raise ValueError('Projection not supported: %s' % self.proj_name)
+            raise ValueError('Projection not supported: {}'.format(
+                self.proj_name))
         x, y = p(lon, lat)
         x = np.array(x)
         y = np.array(y)
