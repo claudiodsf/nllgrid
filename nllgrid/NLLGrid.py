@@ -36,9 +36,9 @@ class NLLGrid():
 
     def __init__(self,
                  basename=None,
-                 nx=0, ny=0, nz=0,
+                 nx=None, ny=None, nz=None,
                  x_orig=0., y_orig=0., z_orig=0.,
-                 dx=0., dy=0., dz=0.):
+                 dx=1., dy=1., dz=1.):
         self.nx = nx
         self.ny = ny
         self.nz = nz
@@ -53,8 +53,8 @@ class NLLGrid():
         self.proj_ellipsoid = None
         self.orig_lat = float(0)
         self.orig_lon = float(0)
-        self.first_std_paral = None
-        self.second_std_paral = None
+        self.first_std_paral = 0
+        self.second_std_paral = 0
         self.map_rot = float(0)
         self.station = None
         self.sta_x = float(0)
