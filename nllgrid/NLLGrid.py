@@ -228,7 +228,10 @@ class NLLGrid():
 
         for line in lines:
             vals = line.split()
-            if vals[0] == 'TRANSFORM':
+            if not vals:
+                # skip empty lines
+                continue
+            if vals[0] in ['TRANS', 'TRANSFORM']:
                 if vals[1] == 'NONE':
                     self.proj_name = 'NONE'
                 if vals[1] == 'SIMPLE':
