@@ -4,7 +4,7 @@ Python porting of c-code from matrix_statistics.c,
 part of the NonLinLoc package, written by Anthony Lomax.
 
 :copyright:
-    2013-2017 Claudio Satriano <satriano@ipgp.fr>
+    2013-2018 Claudio Satriano <satriano@ipgp.fr>
 :license:
     CeCILL Free Software License Agreement, Version 2.1
     (http://www.cecill.info/index.en.html)
