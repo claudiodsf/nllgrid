@@ -456,6 +456,10 @@ class NLLGrid():
                 return
             else:
                 array = self.array
+        min_x, max_x, min_y, max_y, min_z, max_z = self.get_extent()
+        if not (min_x <= x <= max_x and min_y <= y <= max_y and
+                min_z <= z <= max_z):
+            raise ValueError('point {} outside the grid.'.format((x, y, z)))
         i, j, k = self.get_ijk(x, y, z)
         return array[i, j, k]
 
