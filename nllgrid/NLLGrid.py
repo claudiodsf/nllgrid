@@ -30,6 +30,7 @@ valid_grid_types = (
     'SLOW2',
     'SLOW2_METERS',
     'SLOW_LEN',
+    'STACK',
     'TIME',
     'TIME2D',
     'PROB_DENSITY',
