@@ -100,4 +100,11 @@ Finally, give a basename and write to disk:
 
 This will create the two files `mygrid.hdr` and `mygrid.buf`.
 
+If you want to save your grid in double precision (required for
+instance by NLDiffLoc), change `grd.float_type` to `'DOUBLE'` before saving the grid (default is `'FLOAT'`):
+
+```python
+>>> grd.float_type = 'DOUBLE'
+```
+
 Note that if you want to use your grid as input for NonLinLoc `Grid2Time` code, the grid type has to be `SLOW_LEN` and your grid array has to be transformed into slowness (in s/km) and multiplied by the grid step (in km).
