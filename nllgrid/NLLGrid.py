@@ -132,6 +132,9 @@ class NLLGrid():
         s += 'transform: {}'.format(self.get_transform_line())
         return s
 
+    def _repr_pretty_(self, p, cycle):
+        p.text(self.__str__())
+
     def __getitem__(self, key):
         """Make the grid object array-like."""
         if self.type in ['ANGLE', 'ANGLE2D']:
