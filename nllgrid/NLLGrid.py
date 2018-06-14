@@ -734,7 +734,7 @@ def main():
     """
     import matplotlib.pyplot as plt
 
-    #http://stackoverflow.com/q/17190649
+    # http://stackoverflow.com/q/17190649
     def gauss3D(shape=(3, 3, 3), sigmax=0.5, sigmay=0.5, sigmaz=0.5, theta=0):
         m, n, k = [(ss-1.)/2. for ss in shape]
         y, x, z = np.ogrid[-m:m+1, -n:n+1, -k:k+1]
