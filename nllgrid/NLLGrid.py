@@ -297,17 +297,17 @@ class NLLGrid():
                     'Not enough data values in buf file! '
                     '({} < {})'.format(len(buf), nitems))
         if self.type in ['ANGLE', 'ANGLE2D']:
-            self.take_off_angles = (TakeOffAngles * len(buf))()
+            take_off_angles = (TakeOffAngles * len(buf))()
             for _i, _val in enumerate(buf):
-                self.take_off_angles[_i].fval = _val
+                take_off_angles[_i].fval = _val
             self.azimuth = np.array(
-                [t.ival[1]/10. for t in self.take_off_angles]
+                [t.ival[1]/10. for t in take_off_angles]
                 ).reshape(self.nx, self.ny, self.nz)
             self.dip = np.array(
-                [(t.ival[0]//16)/10. for t in self.take_off_angles]
+                [(t.ival[0]//16)/10. for t in take_off_angles]
                 ).reshape(self.nx, self.ny, self.nz)
             self.quality = np.array(
-                [t.ival[0] % 16 for t in self.take_off_angles]
+                [t.ival[0] % 16 for t in take_off_angles]
                 ).reshape(self.nx, self.ny, self.nz)
             self.azimuth[self.quality == 0] = np.nan
             self.dip[self.quality == 0] = np.nan
