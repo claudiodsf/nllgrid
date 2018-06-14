@@ -15,7 +15,6 @@ from __future__ import (absolute_import, division, print_function,
 import math
 import numpy as np
 from scipy.ndimage import zoom
-from array import array
 from ctypes import Union, c_float, c_ushort
 from copy import deepcopy
 from pyproj import Proj
@@ -38,6 +37,12 @@ valid_grid_types = (
     'ANGLE',
     'ANGLE2D'
 )
+
+valid_float_types = {
+    # NLL_type: numpy_type
+    'FLOAT': 'float32',
+    'DOUBLE': 'float64'
+}
 
 valid_projections = (
     'NONE',
@@ -100,6 +105,7 @@ class NLLGrid():
         self.sta_x = float(0)
         self.sta_y = float(0)
         self.sta_z = float(0)
+        self.float_type = 'FLOAT'
         self.__array = None
         self.xyz_mean = None
         self.xyz_cov = None
@@ -119,6 +125,7 @@ class NLLGrid():
             self.x_orig, self.y_orig, self.z_orig)
         s += 'dx: {} dy: {} dz: {}\n'.format(self.dx, self.dy, self.dz)
         s += 'grid_type: {}\n'.format(self.type)
+        s += 'float_type: {}\n'.format(self.float_type)
         if self.station is not None:
             s += 'station: {} sta_x: {} sta_y: {} sta_z: {}\n'.format(
                 self.station, self.sta_x, self.sta_y, self.sta_z)
@@ -160,6 +167,24 @@ class NLLGrid():
             msg += 'Valid grid types are: {}'.format(valid_grid_types)
             raise ValueError(msg)
         self.__type = grid_type
+
+    @property
+    def float_type(self):
+        return self.__float_type
+
+    @float_type.setter
+    def float_type(self, float_type):
+        try:
+            float_type = float_type.upper()
+        except AttributeError:
+            raise ValueError('Float type must be a string')
+        if float_type not in valid_float_types:
+            msg = 'Invalid float type: {}\n'.format(float_type)
+            msg += 'Valid grid types are: {}'.format(
+                tuple(valid_float_types.keys()))
+            raise ValueError(msg)
+        self.__np_float_type = valid_float_types[float_type]
+        self.__float_type = float_type
 
     @property
     def proj_name(self):
@@ -224,6 +249,10 @@ class NLLGrid():
         self.dy = float(vals[7])
         self.dz = float(vals[8])
         self.type = vals[9]
+        try:
+            self.float_type = vals[10]
+        except IndexError:
+            self.float_type = 'FLOAT'
 
         lines.pop(0)
 
@@ -261,8 +290,12 @@ class NLLGrid():
         filename = self.basename + '.buf'
 
         with open(filename, 'rb') as fp:
-            buf = array(str('f'))
-            buf.fromfile(fp, self.nx * self.ny * self.nz)
+            nitems = self.nx * self.ny * self.nz
+            buf = np.fromfile(fp, dtype=self.__np_float_type, count=nitems)
+            if len(buf) < nitems:
+                raise ValueError(
+                    'Not enough data values in buf file! '
+                    '({} < {})'.format(len(buf), nitems))
         if self.type in ['ANGLE', 'ANGLE2D']:
             self.take_off_angles = (TakeOffAngles * len(buf))()
             for _i, _val in enumerate(buf):
@@ -289,11 +322,11 @@ class NLLGrid():
 
         lines = []
         lines.append('{} {} {}  {:.6f} {:.6f} {:.6f}  '
-                     '{:.6f} {:.6f} {:.6f} {}\n'.format(
+                     '{:.6f} {:.6f} {:.6f} {} {}\n'.format(
                         self.nx, self.ny, self.nz,
                         self.x_orig, self.y_orig, self.z_orig,
                         self.dx, self.dy, self.dz,
-                        self.type))
+                        self.type, self.float_type))
         if self.station is not None:
             lines.append('{} {:.6f} {:.6f} {:.6f}\n'.format(
                 self.station, self.sta_x, self.sta_y, self.sta_z))
@@ -316,7 +349,7 @@ class NLLGrid():
             self.basename = basename
         filename = self.basename + '.buf'
         with open(filename, 'wb') as fp:
-            self.array.astype(np.float32).tofile(fp)
+            self.array.astype(self.__np_float_type).tofile(fp)
 
     def get_transform_line(self):
         if self.proj_name == 'NONE':
