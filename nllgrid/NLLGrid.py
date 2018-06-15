@@ -68,6 +68,8 @@ valid_ellipsoids = (
 
 
 class TakeOffAngles(Union):
+    """Union-style class for decoding take off angles."""
+
     _fields_ = [('fval', c_float),
                 ('ival', c_ushort*2)]
 
@@ -84,6 +86,7 @@ class NLLGrid():
                  nx=1, ny=1, nz=1,
                  x_orig=0., y_orig=0., z_orig=0.,
                  dx=1., dy=1., dz=1.):
+        """Init a NLLGrid object."""
         self.nx = nx
         self.ny = ny
         self.nz = nz
@@ -144,6 +147,7 @@ class NLLGrid():
 
     @property
     def array(self):
+        """Property getter."""
         return self.__array
 
     @array.setter
@@ -157,6 +161,7 @@ class NLLGrid():
 
     @property
     def type(self):
+        """Property getter."""
         return self.__type
 
     @type.setter
@@ -173,6 +178,7 @@ class NLLGrid():
 
     @property
     def float_type(self):
+        """Property getter."""
         return self.__float_type
 
     @float_type.setter
@@ -191,6 +197,7 @@ class NLLGrid():
 
     @property
     def proj_name(self):
+        """Property getter."""
         return self.__proj_name
 
     @proj_name.setter
@@ -207,6 +214,7 @@ class NLLGrid():
 
     @property
     def proj_ellipsoid(self):
+        """Property getter."""
         return self.__proj_ellipsoid
 
     @proj_ellipsoid.setter
@@ -228,6 +236,13 @@ class NLLGrid():
         return bntmp.rsplit('.buf', 1)[0]
 
     def init_array(self):
+        """Init the array to zeros.
+
+        Example of usage:
+        >>> grd = NLLGrid(nx=20, ny=20, nz=30, dx=2., dy=2., dz=2.)
+        >>> grd.init_array()
+        >>> grd.array[2, 4, 10] = 3.
+        """
         self.array = np.zeros((self.nx, self.ny, self.nz), float)
 
     def read_hdr_file(self, basename=None):
@@ -355,6 +370,7 @@ class NLLGrid():
             self.array.astype(self.__np_float_type).tofile(fp)
 
     def get_transform_line(self):
+        """Get the transform line in NLL hdr format."""
         if self.proj_name == 'NONE':
             return 'TRANSFORM  NONE'
         if self.proj_name == 'SIMPLE':
@@ -373,19 +389,21 @@ class NLLGrid():
             return line
 
     def get_xyz(self, i, j, k):
+        """Get cartesian coordinates (x, y, z) for grid indexes (i, j, k)."""
         x = i * self.dx + self.x_orig
         y = j * self.dy + self.y_orig
         z = k * self.dz + self.z_orig
         return x, y, z
 
     def get_ijk(self, x, y, z):
+        """Get grid indexes (i, j, k) for cartesian coordinates (x, y, z)."""
         i = int((x - self.x_orig) / self.dx)
         j = int((y - self.y_orig) / self.dy)
         k = int((z - self.z_orig) / self.dz)
         return i, j, k
 
     def get_ijk_max(self):
-        """Return the indexes (i,j,k) of the grid max point."""
+        """Return the indexes (i, j, k) of the grid max point."""
         if self.array is None:
             return None
         return np.unravel_index(self.array.argmax(), self.array.shape)
@@ -491,6 +509,7 @@ class NLLGrid():
         return ell
 
     def get_value(self, x, y, z, array=None):
+        """Get the array value at specified cartesian coordinates (x, y, z)."""
         if array is None:
             if self.array is None:
                 return
@@ -504,6 +523,7 @@ class NLLGrid():
         return array[i, j, k]
 
     def get_extent(self):
+        """Get the grid extent in cartesian units (generally km)."""
         extent = (self.x_orig - self.dx / 2,
                   self.x_orig + self.nx * self.dx + self.dx / 2,
                   self.y_orig - self.dy / 2,
@@ -514,27 +534,34 @@ class NLLGrid():
         return extent
 
     def get_xy_extent(self):
+        """Get the grid xy extent in cartesian units (generally km)."""
         return self.get_extent()[0:4]
 
     def get_xz_extent(self):
+        """Get the grid xz extent in cartesian units (generally km)."""
         return self.get_extent()[0:2] + self.get_extent()[4:]
 
     def get_zx_extent(self):
+        """Get the grid zx extent in cartesian units (generally km)."""
         return self.get_extent()[4:] + self.get_extent()[0:2]
 
     def get_yz_extent(self):
+        """Get the grid yz extent in cartesian units (generally km)."""
         return self.get_extent()[2:]
 
     def get_zy_extent(self):
+        """Get the grid zy extent in cartesian units (generally km)."""
         return self.get_extent()[4:] + self.get_extent()[2:4]
 
     def max(self):
+        """Get the grid max value."""
         if self.type in ['ANGLE', 'ANGLE2D']:
             return np.nanmax(self.dip)
         if self.array is not None:
             return np.nanmax(self.array)
 
     def resample(self, dx, dy, dz):
+        """Resample grid to (dx, dy, dz)."""
         if self.type in ['ANGLE', 'ANGLE2D']:
             raise NotImplementedError(
                 'Resample not implemented for ANGLE grid.')
@@ -550,6 +577,10 @@ class NLLGrid():
         self.dz = dz
 
     def get_plot_axes(self, figure=None, ax_xy=None):
+        """Get the axes for the three projections, plus the colorbar axis.
+
+        Requires Matplotlib.
+        """
         import matplotlib.pyplot as plt
         from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -599,6 +630,10 @@ class NLLGrid():
 
     def plot(self, slice_index=None, handle=False, figure=None, ax_xy=None,
              vmin=None, vmax=None, cmap=None, array=None):
+        """Plot the grid using three orthogonal projections.
+
+        Requires Matplotlib.
+        """
         import matplotlib.pyplot as plt
         from matplotlib import ticker
 
@@ -655,12 +690,14 @@ class NLLGrid():
             plt.show()
 
     def plot_3D_point(self, axes, point, color='r'):
+        """Plot a point (i, j, k) on the grid."""
         ax_xy, ax_xz, ax_yz = axes
         ax_xy.scatter(point[0], point[1], color=color)
         ax_xz.scatter(point[0], point[2], color=color)
         ax_yz.scatter(point[2], point[1], color=color)
 
     def plot_ellipsoid(self, axes, ellipsoid=None, mean_xyz=None):
+        """Plot an ellipsoid on the grid."""
         from ellipsoid import Vect3D, ellipsiod2Axes, toEllipsoid3D
         ax_xy, ax_xz, ax_yz = axes
 
@@ -756,6 +793,7 @@ class NLLGrid():
         return x, y
 
     def copy(self):
+        """Get a deep copy of the grid object."""
         return deepcopy(self)
 
 
