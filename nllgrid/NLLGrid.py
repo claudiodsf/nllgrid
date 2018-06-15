@@ -81,7 +81,7 @@ class NLLGrid():
 
     def __init__(self,
                  basename=None,
-                 nx=None, ny=None, nz=None,
+                 nx=1, ny=1, nz=1,
                  x_orig=0., y_orig=0., z_orig=0.,
                  dx=1., dy=1., dz=1.):
         self.nx = nx
@@ -151,8 +151,7 @@ class NLLGrid():
         array_data = np.asarray(array_data)
         if array_data.ndim != 3:
             raise ValueError('Only 3D arrays are supported')
-        if None in (self.nx, self.ny, self.nz):
-            self.nx, self.ny, self.nz = array_data.shape
+        self.nx, self.ny, self.nz = array_data.shape
         self.__array = array_data
 
     @property
