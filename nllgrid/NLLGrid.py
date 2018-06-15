@@ -794,7 +794,6 @@ def main():
                   dx=1, dy=1, dz=1,
                   x_orig=x_orig, y_orig=y_orig)
     print(grd)
-    grd.init_array()
     grd.array = gauss3D((nx, ny, nz), 20, 10, 2, 30)
 
     # Compute statistics
