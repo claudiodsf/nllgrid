@@ -81,7 +81,7 @@ class NLLGrid():
 
     def __init__(self,
                  basename=None,
-                 nx=None, ny=None, nz=None,
+                 nx=1, ny=1, nz=1,
                  x_orig=0., y_orig=0., z_orig=0.,
                  dx=1., dy=1., dz=1.):
         self.nx = nx
