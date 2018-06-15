@@ -2,15 +2,15 @@
 """setup.py: setuptools control."""
 from setuptools import setup
 
-# import inspect
-# import os
-# import sys
+import inspect
+import os
+import sys
 
 # Import the version string.
-# path = os.path.join(os.path.abspath(os.path.dirname(inspect.getfile(
-#     inspect.currentframe()))), 'nllgrid')
-# sys.path.insert(0, path)
-# from ssp_version import get_git_version
+path = os.path.join(os.path.abspath(os.path.dirname(inspect.getfile(
+    inspect.currentframe()))), 'nllgrid')
+sys.path.insert(0, path)
+from version import get_git_version
 
 
 with open('README.md', 'rb') as f:
@@ -21,7 +21,7 @@ setup(
     name='nllgrid',
     packages=['nllgrid', ],
     include_package_data=True,
-    version=0.1,
+    version=get_git_version(),
     description='Python class for reading and writing NonLinLoc grid files',
     long_description=long_descr,
     author='Claudio Satriano',
