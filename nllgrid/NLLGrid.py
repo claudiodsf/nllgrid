@@ -605,7 +605,7 @@ class NLLGrid(object):
         ax_xy.set_xlim(xmin, xmax)
         ax_xy.set_ylim(ymin, ymax)
         ax_xy.set_aspect('equal', 'datalim')
-        plt.setp(ax_xy.get_yticklabels(), rotation=90, fontsize=12)
+        plt.setp(ax_xy.get_yticklabels(), rotation=0)
 
         # ax_yz
         ax_yz = divider.append_axes(
@@ -613,8 +613,8 @@ class NLLGrid(object):
         plt.setp(ax_yz.get_yticklabels(), visible=False)
         ax_yz.set_xlim(zmin, zmax)
         ax_yz.set_ylim(ymin, ymax)
-        plt.setp(ax_yz.get_xticklabels(), rotation=90, fontsize=12)
-        plt.setp(ax_yz.get_yticklabels(), rotation=90, fontsize=12)
+        plt.setp(ax_yz.get_xticklabels(), rotation=90)
+        plt.setp(ax_yz.get_yticklabels(), rotation=90)
 
         # ax_xz
         ax_xz = divider.append_axes(
