@@ -3,7 +3,7 @@
 Reading and writing of NonLinLoc grid files.
 
 :copyright:
-    2013-2018 Claudio Satriano <satriano@ipgp.fr>,
+    2013-2019 Claudio Satriano <satriano@ipgp.fr>,
               Natalia Poiata <poiata@ipgp.fr>
 :license:
     CeCILL Free Software License Agreement, Version 2.1
