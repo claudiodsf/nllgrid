@@ -480,7 +480,10 @@ class NLLGrid(object):
 
     def get_xyz_ellipsoid(self):
         """Return the 68% confidence ellipsoid."""
-        from ellipsoid import Ellipsoid3D
+        try:
+            from .ellipsoid import Ellipsoid3D
+        except ImportError:
+            from ellipsoid import Ellipsoid3D
         # The following code is a python translation of the
         # CalcErrorEllipsoid() c-function from the NonLinLoc package,
         # written by Anthony Lomax
@@ -697,7 +700,10 @@ class NLLGrid(object):
 
     def plot_ellipsoid(self, axes, ellipsoid=None, mean_xyz=None):
         """Plot an ellipsoid on the grid."""
-        from ellipsoid import Vect3D, ellipsiod2Axes, toEllipsoid3D
+        try:
+            from .ellipsoid import Vect3D, ellipsiod2Axes, toEllipsoid3D
+        except ImportError:
+            from ellipsoid import Vect3D, ellipsiod2Axes, toEllipsoid3D
         ax_xy, ax_xz, ax_yz = axes
 
         if ellipsoid is None:
