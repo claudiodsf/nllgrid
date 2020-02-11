@@ -396,9 +396,9 @@ class NLLGrid(object):
 
     def get_ijk(self, x, y, z):
         """Get grid indexes (i, j, k) for cartesian coordinates (x, y, z)."""
-        i = int((x - self.x_orig) / self.dx)
-        j = int((y - self.y_orig) / self.dy)
-        k = int((z - self.z_orig) / self.dz)
+        i = np.floor((x - self.x_orig) / self.dx).astype(int)
+        j = np.floor((y - self.y_orig) / self.dy).astype(int)
+        k = np.floor((z - self.z_orig) / self.dz).astype(int)
         return i, j, k
 
     def get_ijk_max(self):
