@@ -7,6 +7,14 @@ Python class for reading and writing
 
 ## Installation
 
+### Using pip
+
+The easiest way to install NLLGrid is through `pip`:
+
+    pip install nllgrid
+
+### From this GitHub repository
+
 Clone or download the project from GitHub, uncompress the archive
 (if needed), and install the codes by running (from within the main
 directory):
