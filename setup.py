@@ -13,17 +13,13 @@ sys.path.insert(0, path)
 from version import get_git_version
 
 
-with open('README.md', 'rb') as f:
-    long_descr = f.read().decode('utf-8')
-
-
 setup(
     name='nllgrid',
     packages=['nllgrid', ],
     include_package_data=True,
     version=get_git_version(),
     description='Python class for reading and writing NonLinLoc grid files',
-    long_description=long_descr,
+    long_description='Python class for reading and writing NonLinLoc grid files',
     author='Claudio Satriano',
     author_email='satriano@ipgp.fr',
     url='http://www.ipgp.fr/~satriano',
