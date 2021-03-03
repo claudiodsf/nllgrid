@@ -631,7 +631,7 @@ class NLLGrid(object):
         return ax_xy, ax_xz, ax_yz, ax_cb
 
     def plot(self, slice_index=None, handle=False, figure=None, ax_xy=None,
-             vmin=None, vmax=None, cmap=None, array=None):
+             vmin=None, vmax=None, cmap=None, line_color='white', array=None):
         """Plot the grid using three orthogonal projections.
 
         Requires Matplotlib.
@@ -675,10 +675,10 @@ class NLLGrid(object):
                      aspect='auto', zorder=-10)
 
         x_slice, y_slice, z_slice = self.get_xyz(*slice_index)
-        ax_xy.axhline(y_slice, color='w', linestyle='dashed', zorder=-1)
-        ax_xy.axvline(x_slice, color='w', linestyle='dashed', zorder=-1)
-        ax_xz.axhline(z_slice, color='w', linestyle='dashed', zorder=-1)
-        ax_yz.axvline(z_slice, color='w', linestyle='dashed', zorder=-1)
+        ax_xy.axhline(y_slice, color=line_color, linestyle='dashed', zorder=-1)
+        ax_xy.axvline(x_slice, color=line_color, linestyle='dashed', zorder=-1)
+        ax_xz.axhline(z_slice, color=line_color, linestyle='dashed', zorder=-1)
+        ax_yz.axvline(z_slice, color=line_color, linestyle='dashed', zorder=-1)
 
         fmt = '%.1e' if np.nanmax(array) <= 0.01 else '%.2f'
         cb = figure.colorbar(
