@@ -1,3 +1,4 @@
 include README.md
 include LICENSE.txt
-include nllgrid/RELEASE-VERSION
+include versioneer.py
+include nllgrid/_version.py
