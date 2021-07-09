@@ -797,6 +797,47 @@ class NLLGrid(object):
                 y = float(y)
         return x, y
 
+    def iproject(self, x, y):
+        """Inverse project grid coordinates (x,y) into lon,lat."""
+        if self.proj_name == 'LAMBERT':
+            ellipsoids = {
+                'WGS-84': 'WGS84',
+                'GRS-80': 'GRS80',
+                'WGS-72': 'WGS72',
+                'Australian': 'aust_SA',
+                'Krasovsky': 'krass',
+                'International': 'new_intl',
+                'Hayford-1909': 'intl',
+                'Clarke-1880': 'clrk80',
+                'Clarke-1866': 'clrk66',
+                'Airy': 'airy',
+                'Bessel': 'bessel',
+                # 'Hayford-1830':
+                'Sphere': 'sphere'
+                }
+            try:
+                ellps = ellipsoids[self.proj_ellipsoid]
+            except KeyError:
+                raise ValueError(
+                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
+            ip = Proj(proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                     lat_1=self.first_std_paral, lat_2=self.second_std_paral,
+                     ellps=ellps)
+        elif self.proj_name == 'SIMPLE':
+            ip = Proj(proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
+        else:
+            raise ValueError('Projection not supported: {}'.format(
+                self.proj_name))
+        x = np.array(x)
+        y = np.array(y)
+        x *= 1000
+        y *= 1000
+        theta = np.radians(-self.map_rot) #set negative
+        x1 = x*np.cos(theta) + y*np.sin(theta)
+        y1 = -x*np.sin(theta) + y*np.cos(theta)
+        lon,lat = ip(x1,y1, inverse=True)
+        return lon, lat    
+    
     def copy(self):
         """Get a deep copy of the grid object."""
         return deepcopy(self)
