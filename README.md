@@ -5,19 +5,47 @@ Python class for reading and writing
 
 (c) 2015-2021 Claudio Satriano, Natalia Poiata
 
+
 ## Installation
 
-### Using pip
+### Using pip and PyPI (preferred method)
 
-The easiest way to install NLLGrid is through `pip`:
+The latest release of NLLGrid is available on the
+[Python Package Index](https://pypi.org/project/nllgrid/).
+
+You can install it easily through `pip`:
 
     pip install nllgrid
 
-### From this GitHub repository
+### From nllgrid GitHub releases
 
-Clone or download the project from GitHub, uncompress the archive
-(if needed), and install the codes by running (from within the main
-directory):
+Download the latest release from the
+[releases page](https://github.com/claudiodsf/nllgrid/releases),
+in `zip` or `tar.gz` format, then:
+
+    pip install nllgrid-X.Y.zip
+
+or
+
+    pip install nllgrid-X.Y.tar.gz
+
+Where, `X.Y` is the version number (e.g., `1.3`).
+You don't need to uncompress the release files yourself.
+
+### From nllgrid GitHub repository
+
+If you need a recent feature that is not in the latest release (see the
+`unreleased` section in [CHANGELOG](CHANGELOG.md)), you want to use the source
+code from the
+[nllgrid GitHub repository](https://github.com/claudiodsf/nllgrid).
+
+For that, clone the project:
+
+    git clone https://github.com/claudiodsf/nllgrid.git
+
+(avoid using the "Download ZIP" option from the green "Code" button, since
+version number is lost), then install the code from within the `nllgrid`
+main directory by running:
 
     pip install .
 
