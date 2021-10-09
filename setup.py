@@ -20,7 +20,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Claudio Satriano',
     author_email='satriano@ipgp.fr',
-    url='http://www.ipgp.fr/~satriano',
+    url='https://github.com/claudiodsf/nllgrid',
     license='CeCILL Free Software License Agreement, Version 2.1',
     platforms='OS Independent',
     classifiers=[
