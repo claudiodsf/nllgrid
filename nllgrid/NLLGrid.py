@@ -534,6 +534,11 @@ class NLLGrid(object):
                 return
             else:
                 array = self.array
+        # Special case of 2D grids: y is epicentral distance
+        # note: this doesn't work for GLOBAL grids
+        if self.nx <= 2:
+            y = np.sqrt(x**2 + y**2)
+            x = self.x_orig
         min_x, max_x, min_y, max_y, min_z, max_z = self.get_extent()
         if not (min_x <= x <= max_x and min_y <= y <= max_y and
                 min_z <= z <= max_z):
@@ -611,6 +616,18 @@ class NLLGrid(object):
         if ax_xy is None:
             ax_xy = figure.add_subplot(111)
 
+        # Special case of 2D grids:
+        # x-axis is epicentral distance (y values on grid)
+        # y-axis is depth (z values on grid)
+        if self.nx <= 2:
+            divider = make_axes_locatable(ax_xy)
+            ax_xy.set_xlim(ymin, ymax)
+            ax_xy.set_ylim(zmax, zmin)
+            ax_xy.set_aspect('equal', 'datalim')
+            # color-bar
+            ax_cb = divider.append_axes('bottom', size=0.2, pad=0.4)
+            return ax_xy, ax_cb
+
         ratio = float(xmax - xmin) / (ymax - ymin)
         plot_xz_size = ((zmax - zmin)/(xmax - xmin))*100
         plot_yz_size = plot_xz_size / ratio
@@ -662,6 +679,28 @@ class NLLGrid(object):
             else:
                 array = self.array
 
+        # Special case of 2D grids:
+        # x-axis is epicentral distance (y values on grid)
+        # y-axis is depth (z values on grid)
+        if self.nx <= 2:
+            ax_xy, ax_cb = self.get_plot_axes(figure, ax_xy)
+            if figure is None:
+                figure = ax_xy.get_figure()
+            hnd = ax_xy.imshow(np.transpose(array[0, :, :]),
+                               vmin=vmin, vmax=vmax, cmap=cmap,
+                               origin='lower', extent=self.get_yz_extent(),
+                               zorder=-10)
+            fmt = '%.1e' if np.nanmax(array) <= 0.01 else '%.2f'
+            cb = figure.colorbar(
+                hnd, cax=ax_cb, orientation='horizontal', format=fmt)
+            cb.locator = ticker.LinearLocator(numticks=3)
+            cb.update_ticks()
+            if handle:
+                return ax_xy, cb
+            else:
+                plt.show()
+                return
+
         ax_xy, ax_xz, ax_yz, ax_cb = self.get_plot_axes(figure, ax_xy)
         if figure is None:
             figure = ax_xy.get_figure()
@@ -710,6 +749,9 @@ class NLLGrid(object):
 
     def plot_3D_point(self, axes, point, color='r'):
         """Plot a point (i, j, k) on the grid."""
+        if self.nx <= 2:
+            raise NotImplementedError(
+                'This method is supported only for 3D grids')
         ax_xy, ax_xz, ax_yz = axes
         ax_xy.scatter(point[0], point[1], color=color)
         ax_xz.scatter(point[0], point[2], color=color)
@@ -717,6 +759,9 @@ class NLLGrid(object):
 
     def plot_ellipsoid(self, axes, ellipsoid=None, mean_xyz=None):
         """Plot an ellipsoid on the grid."""
+        if self.nx <= 2:
+            raise NotImplementedError(
+                'This method is supported only for 3D grids')
         try:
             from .ellipsoid import Vect3D, ellipsiod2Axes, toEllipsoid3D
         except ImportError:

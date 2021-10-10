@@ -5,6 +5,10 @@ Python class for reading and writing
 
 (c) 2015-2021 Claudio Satriano, Natalia Poiata
 
+## unreleased
+  - `NLLGrid.get_value()`: support for 2D grids
+  - `NLLGrid.plot()`: support for 2D grids
+
 ## v1.3 - 2021-07-09
   - `NLLGrid.iproject()` method for inverse projection
 
