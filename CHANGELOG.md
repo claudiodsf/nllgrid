@@ -8,6 +8,8 @@ Python class for reading and writing
 ## unreleased
   - `NLLGrid.get_value()`: support for 2D grids
   - `NLLGrid.plot()`: support for 2D grids
+  - Fixed: `NLLGrid.get_value()` now correctly returns angles,
+    instead of `None`, for `ANGLE` and `ANGLE2D` grids
 
 ## v1.3 - 2021-07-09
   - `NLLGrid.iproject()` method for inverse projection

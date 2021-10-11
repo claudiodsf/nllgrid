@@ -376,7 +376,9 @@ class NLLGrid(object):
         """Write buf file as a 3d array."""
         if self.type in ['ANGLE', 'ANGLE2D']:
             raise NotImplementedError(
-                'Writing buf file not implemented for ANGLE grid.')
+                'Writing buf file not implemented for {} grid.'.format(
+                    self.type
+                ))
         if self.array is None:
             return
         if basename is not None:
@@ -528,12 +530,20 @@ class NLLGrid(object):
         return ell
 
     def get_value(self, x, y, z, array=None):
-        """Get the array value at specified cartesian coordinates (x, y, z)."""
-        if array is None:
-            if self.array is None:
-                return
-            else:
-                array = self.array
+        """
+        Get grid value at specified cartesian coordinates (x, y, z).
+
+        Returns a signle value, except for ANGLE and ANGLE2D grids,
+        where (azimuth, dip, quality) is returned.
+        """
+        if array is not None:
+            if self.type in ['ANGLE', 'ANGLE2D']:
+                raise NotImplementedError(
+                    '"array" argument not implemented for {} grid.'.format(
+                        self.type
+                    ))
+        else:
+            array = self.array
         # Special case of 2D grids: y is epicentral distance
         # note: this doesn't work for GLOBAL grids
         if self.nx <= 2:
@@ -544,7 +554,13 @@ class NLLGrid(object):
                 min_z <= z <= max_z):
             raise ValueError('point {} outside the grid.'.format((x, y, z)))
         i, j, k = self.get_ijk(x, y, z)
-        return array[i, j, k]
+        if self.type in ['ANGLE', 'ANGLE2D']:
+            azimuth = self.azimuth[i, j, k]
+            dip = self.dip[i, j, k]
+            quality = self.quality[i, j, k]
+            return azimuth, dip, quality
+        else:
+            return array[i, j, k]
 
     def get_extent(self):
         """Get the grid extent in cartesian units (generally km)."""
@@ -588,7 +604,7 @@ class NLLGrid(object):
         """Resample grid to (dx, dy, dz)."""
         if self.type in ['ANGLE', 'ANGLE2D']:
             raise NotImplementedError(
-                'Resample not implemented for ANGLE grid.')
+                'Resample not implemented for {} grid.'.format(self.type))
         zoom_x = self.dx / dx
         zoom_y = self.dy / dy
         zoom_z = self.dz / dz
