@@ -5,7 +5,7 @@ Python class for reading and writing
 
 (c) 2015-2021 Claudio Satriano, Natalia Poiata
 
-## unreleased
+## v1.4 - 2021-10-12
   - `NLLGrid.get_value()`: support for 2D grids
   - `NLLGrid.plot()`: support for 2D grids
   - Fixed: `NLLGrid.get_value()` now correctly returns angles,
