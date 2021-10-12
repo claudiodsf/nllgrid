@@ -6,7 +6,7 @@ import versioneer
 with open('README.md', 'rb') as f:
     long_descr = f.read().decode('utf-8').replace(
         '(CHANGELOG.md)',
-        '(https://cdn.jsdelivr.net/gh/SeismicSource/sourcespec/CHANGELOG.md)'
+        '(https://cdn.jsdelivr.net/gh/claudiodsf/nllgrid/CHANGELOG.md)'
     )
 
 setup(
