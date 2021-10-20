@@ -5,12 +5,24 @@ Python class for reading and writing
 
 (c) 2015-2021 Claudio Satriano, Natalia Poiata
 
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/nllgrid/badges/version.svg)](https://anaconda.org/conda-forge/nllgrid)
+[![PyPI version](https://badge.fury.io/py/nllgrid.svg)](https://badge.fury.io/py/nllgrid)
 
 ## Installation
 
-### Using pip and PyPI (preferred method)
+### Using Anaconda
 
-The latest release of NLLGrid is available on the
+If you use [Anaconda](https://www.anaconda.com/products/individual),
+the latest release of nllgrid is available via
+[conda-forge](https://anaconda.org/conda-forge/nllgrid)
+
+To install, simply run:
+
+    conda install -c conda-forge nllgrid
+
+### Using pip and PyPI
+
+The latest release of nllgrid is available on the
 [Python Package Index](https://pypi.org/project/nllgrid/).
 
 You can install it easily through `pip`:
