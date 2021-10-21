@@ -1,20 +1,20 @@
 # NLLGrid
 
-Python class for reading and writing
-[NonLinLoc](http://alomax.free.fr/nlloc) grid files.
+Python class for reading and writing [NonLinLoc] grid files.
 
 (c) 2015-2021 Claudio Satriano, Natalia Poiata
 
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/nllgrid/badges/version.svg)](https://anaconda.org/conda-forge/nllgrid)
-[![PyPI version](https://badge.fury.io/py/nllgrid.svg)](https://badge.fury.io/py/nllgrid)
+[![cf-badge]][cf-link]
+[![PyPI-badge]][PyPI-link]
+[![license-badge]][license-link]
+
 
 ## Installation
 
 ### Using Anaconda
 
-If you use [Anaconda](https://www.anaconda.com/products/individual),
-the latest release of nllgrid is available via
-[conda-forge](https://anaconda.org/conda-forge/nllgrid)
+If you use [Anaconda], the latest release of nllgrid is available via
+[conda-forge][cf-link].
 
 To install, simply run:
 
@@ -23,7 +23,7 @@ To install, simply run:
 ### Using pip and PyPI
 
 The latest release of nllgrid is available on the
-[Python Package Index](https://pypi.org/project/nllgrid/).
+[Python Package Index][PyPI-link].
 
 You can install it easily through `pip`:
 
@@ -32,7 +32,7 @@ You can install it easily through `pip`:
 ### From nllgrid GitHub releases
 
 Download the latest release from the
-[releases page](https://github.com/claudiodsf/nllgrid/releases),
+[releases page][releases-link],
 in `zip` or `tar.gz` format, then:
 
     pip install nllgrid-X.Y.zip
@@ -47,9 +47,8 @@ You don't need to uncompress the release files yourself.
 ### From nllgrid GitHub repository
 
 If you need a recent feature that is not in the latest release (see the
-`unreleased` section in [CHANGELOG](CHANGELOG.md)), you want to use the source
-code from the
-[nllgrid GitHub repository](https://github.com/claudiodsf/nllgrid).
+`unreleased` section in [CHANGELOG]), you want to use the source code from
+the [nllgrid GitHub repository][github-repo].
 
 For that, clone the project:
 
@@ -165,3 +164,19 @@ Note that if you want to use your grid as input for NonLinLoc
 `Grid2Time` code, the grid type has to be `SLOW_LEN` and your grid
 array has to be transformed into slowness (in s/km) and multiplied
 by the grid step (in km).
+
+
+
+[cf-badge]: http://img.shields.io/conda/vn/conda-forge/nllgrid.svg
+[cf-link]: https://anaconda.org/conda-forge/nllgrid
+[PyPI-badge]: http://img.shields.io/pypi/v/nllgrid.svg
+[PyPI-link]: https://pypi.python.org/pypi/nllgrid
+[license-badge]: https://img.shields.io/badge/license-CeCILL--2.1-green
+[license-link]: http://www.cecill.info/licences.en.html
+
+[NonLinLoc]: http://alomax.free.fr/nlloc
+[Anaconda]: https://www.anaconda.com/products/individual
+[releases-link]: https://github.com/claudiodsf/nllgrid/releases
+[github-repo]: https://github.com/claudiodsf/nllgrid
+[CHANGELOG]: CHANGELOG.md
+
