@@ -51,7 +51,9 @@ valid_float_types = {
 valid_projections = (
     'NONE',
     'SIMPLE',
-    'LAMBERT'
+    'LAMBERT',
+    'TRANS_MERC',
+    'AZIMUTHAL_EQUIDIST'
 )
 
 valid_ellipsoids = (
@@ -315,6 +317,18 @@ class NLLGrid(object):
                     self.first_std_paral = float(vals[9])
                     self.second_std_paral = float(vals[11])
                     self.map_rot = float(vals[13])
+                if vals[1] == 'TRANS_MERC':
+                    self.proj_name = 'TRANS_MERC'
+                    self.proj_ellipsoid = vals[3]
+                    self.orig_lat = float(vals[5])
+                    self.orig_lon = float(vals[7])
+                    self.map_rot = float(vals[9])            
+                if vals[1] == 'AZIMUTHAL_EQUIDIST':
+                    self.proj_name = 'AZIMUTHAL_EQUIDIST'
+                    self.proj_ellipsoid = vals[3]
+                    self.orig_lat = float(vals[5])
+                    self.orig_lon = float(vals[7])
+                    self.map_rot = float(vals[9])
             else:
                 self.station = vals[0]
                 self.sta_x = float(vals[1])
@@ -408,6 +422,18 @@ class NLLGrid(object):
             line += 'FirstStdParal {:.6f}  SecondStdParal {:.6f}  '.format(
                 self.first_std_paral, self.second_std_paral)
             line += 'RotCW {:.6f}'.format(self.map_rot)
+            return line
+        if self.proj_name == 'TRANS_MERC':
+            line = 'TRANSFORM  TRANS_MERC RefEllipsoid {}  '.format(
+                self.proj_ellipsoid)
+            line += 'LatOrig {:.6f}  LongOrig {:.6f}  RotCW {:.6f}'.format(
+                self.orig_lat, self.orig_lon, self.map_rot)
+            return line
+        if self.proj_name == 'AZIMUTHAL_EQUIDIST':
+            line = 'TRANSFORM  AZIMUTHAL_EQUIDIST RefEllipsoid {}  '.format(
+                self.proj_ellipsoid)
+            line += 'LatOrig {:.6f}  LongOrig {:.6f}  RotCW {:.6f}'.format(
+                self.orig_lat, self.orig_lon, self.map_rot)
             return line
 
     def get_xyz(self, i, j, k):
@@ -835,6 +861,14 @@ class NLLGrid(object):
             p = Proj(proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
                      lat_1=self.first_std_paral, lat_2=self.second_std_paral,
                      ellps=ellps)
+        if self.proj_name in ['TRANS_MERC', 'AZIMUTHAL_EQUIDIST']:
+            try:
+                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
+            except KeyError:
+                raise ValueError(
+                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
+            p = Proj(proj='tmerc', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                     ellps=ellps)
         elif self.proj_name == 'SIMPLE':
             p = Proj(proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
         else:
@@ -845,8 +879,8 @@ class NLLGrid(object):
         y = np.array(y)
         x[np.isnan(lon)] = np.nan
         y[np.isnan(lat)] = np.nan
-        x /= 1000.
-        y /= 1000.
+        x = x / 1000.
+        y = y / 1000.
         # inverse rotation
         theta = np.radians(self.map_rot)
         x1 = x*np.cos(theta) + y*np.sin(theta)
@@ -878,6 +912,14 @@ class NLLGrid(object):
                 proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
                 lat_1=self.first_std_paral, lat_2=self.second_std_paral,
                 ellps=ellps)
+        if self.proj_name in ['TRANS_MERC', 'AZIMUTHAL_EQUIDIST']:
+            try:
+                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
+            except KeyError:
+                raise ValueError(
+                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
+            ip = Proj(proj='tmerc', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                     ellps=ellps)            
         elif self.proj_name == 'SIMPLE':
             ip = Proj(proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
         else:
@@ -885,8 +927,8 @@ class NLLGrid(object):
                 self.proj_name))
         x = np.array(x)
         y = np.array(y)
-        x *= 1000.
-        y *= 1000.
+        x = x * 1000.
+        y = y * 1000.
         theta = np.radians(-self.map_rot)  # set negative
         x1 = x*np.cos(theta) + y*np.sin(theta)
         y1 = -x*np.sin(theta) + y*np.cos(theta)
