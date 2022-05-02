@@ -122,6 +122,7 @@ class NLLGrid(object):
         self.__type = None
         self.__proj_name = None
         self.__proj_ellipsoid = None
+        self.__proj_function = None
         self.orig_lat = float(0)
         self.orig_lon = float(0)
         self.first_std_paral = 0
@@ -233,6 +234,8 @@ class NLLGrid(object):
             msg += 'Valid projection names: {}'.format(valid_projections)
             raise ValueError(msg)
         self.__proj_name = pname
+        # Reset proj_function
+        self.__proj_function = None
 
     @property
     def proj_ellipsoid(self):
@@ -251,6 +254,8 @@ class NLLGrid(object):
             msg += 'Valid ellipsoids: {}'.format(valid_ellipsoids)
             raise ValueError(msg)
         self.__proj_ellipsoid = ellipsoid
+        # Reset proj_function
+        self.__proj_function = None
 
     def remove_extension(self, basename):
         """Remove '.hdr' or '.buf' suffixes, if there."""
@@ -850,39 +855,41 @@ class NLLGrid(object):
         ax_yz.plot(ell13[:, 1], ell13[:, 0])
         ax_yz.plot(ell23[:, 1], ell23[:, 0])
 
-    def project(self, lon, lat):
-        """Project lon, lat into grid coordinates."""
+    @property
+    def proj_function(self):
+        "Get the function to perform direct or inverse projections."
+        if self.__proj_function is not None:
+            return self.__proj_function
+        if self.proj_name != 'SIMPLE':
+            try:
+                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
+            except KeyError:
+                raise ValueError(
+                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
         if self.proj_name == 'LAMBERT':
-            try:
-                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
-            except KeyError:
-                raise ValueError(
-                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
-            p = Proj(proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
-                     lat_1=self.first_std_paral, lat_2=self.second_std_paral,
-                     ellps=ellps)
+            self.__proj_function = Proj(
+                proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                lat_1=self.first_std_paral, lat_2=self.second_std_paral,
+                ellps=ellps)
         elif self.proj_name == 'TRANS_MERC':
-            try:
-                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
-            except KeyError:
-                raise ValueError(
-                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
-            p = Proj(proj='tmerc', lat_0=self.orig_lat, lon_0=self.orig_lon,
-                     ellps=ellps)
+            self.__proj_function = Proj(
+                proj='tmerc', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                ellps=ellps)
         elif self.proj_name == 'AZIMUTHAL_EQUIDIST':
-            try:
-                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
-            except KeyError:
-                raise ValueError(
-                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
-            p = Proj(proj='aeqd', lat_0=self.orig_lat, lon_0=self.orig_lon,
-                     ellps=ellps)
+            self.__proj_function = Proj(
+                proj='aeqd', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                ellps=ellps)
         elif self.proj_name == 'SIMPLE':
-            p = Proj(proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
+            self.__proj_function = Proj(
+                proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
         else:
             raise ValueError('Projection not supported: {}'.format(
                 self.proj_name))
-        x, y = p(lon, lat)
+        return self.__proj_function
+
+    def project(self, lon, lat):
+        """Project lon, lat into grid coordinates."""
+        x, y = self.proj_function(lon, lat)
         x = np.array(x)
         y = np.array(y)
         x[np.isnan(lon)] = np.nan
@@ -910,39 +917,6 @@ class NLLGrid(object):
 
     def iproject(self, x, y):
         """Inverse project grid coordinates (x, y) into lon, lat."""
-        if self.proj_name == 'LAMBERT':
-            try:
-                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
-            except KeyError:
-                raise ValueError(
-                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
-            ip = Proj(
-                proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
-                lat_1=self.first_std_paral, lat_2=self.second_std_paral,
-                ellps=ellps)
-        elif self.proj_name == 'TRANS_MERC':
-            try:
-                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
-            except KeyError:
-                raise ValueError(
-                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
-            ip = Proj(
-                proj='tmerc', lat_0=self.orig_lat, lon_0=self.orig_lon,
-                ellps=ellps)
-        elif self.proj_name == 'AZIMUTHAL_EQUIDIST':
-            try:
-                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
-            except KeyError:
-                raise ValueError(
-                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
-            ip = Proj(
-                proj='aeqd', lat_0=self.orig_lat, lon_0=self.orig_lon,
-                ellps=ellps)
-        elif self.proj_name == 'SIMPLE':
-            ip = Proj(proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
-        else:
-            raise ValueError('Projection not supported: {}'.format(
-                self.proj_name))
         x = np.array(x)
         y = np.array(y)
         x = x * 1000.
@@ -950,7 +924,7 @@ class NLLGrid(object):
         theta = np.radians(-self.map_rot)  # set negative
         x1 = x*np.cos(theta) + y*np.sin(theta)
         y1 = -x*np.sin(theta) + y*np.cos(theta)
-        lon, lat = ip(x1, y1, inverse=True)
+        lon, lat = self.proj_function(x1, y1, inverse=True)
         return lon, lat
 
     def copy(self):
