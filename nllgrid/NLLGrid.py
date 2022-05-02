@@ -861,13 +861,21 @@ class NLLGrid(object):
             p = Proj(proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
                      lat_1=self.first_std_paral, lat_2=self.second_std_paral,
                      ellps=ellps)
-        if self.proj_name in ['TRANS_MERC', 'AZIMUTHAL_EQUIDIST']:
+        if self.proj_name == 'TRANS_MERC':
             try:
                 ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
             except KeyError:
                 raise ValueError(
                     'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
             p = Proj(proj='tmerc', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                     ellps=ellps)
+        if self.proj_name == 'AZIMUTHAL_EQUIDIST':
+            try:
+                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
+            except KeyError:
+                raise ValueError(
+                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
+            p = Proj(proj='aeqd', lat_0=self.orig_lat, lon_0=self.orig_lon,
                      ellps=ellps)
         elif self.proj_name == 'SIMPLE':
             p = Proj(proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
@@ -912,14 +920,22 @@ class NLLGrid(object):
                 proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
                 lat_1=self.first_std_paral, lat_2=self.second_std_paral,
                 ellps=ellps)
-        if self.proj_name in ['TRANS_MERC', 'AZIMUTHAL_EQUIDIST']:
+        if self.proj_name == 'TRANS_MERC':
             try:
                 ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
             except KeyError:
                 raise ValueError(
                     'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
             ip = Proj(proj='tmerc', lat_0=self.orig_lat, lon_0=self.orig_lon,
-                     ellps=ellps)            
+                     ellps=ellps)
+        if self.proj_name == 'AZIMUTHAL_EQUIDIST':
+            try:
+                ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
+            except KeyError:
+                raise ValueError(
+                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
+            ip = Proj(proj='aeqd', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                     ellps=ellps)
         elif self.proj_name == 'SIMPLE':
             ip = Proj(proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
         else:
