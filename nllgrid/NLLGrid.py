@@ -322,7 +322,7 @@ class NLLGrid(object):
                     self.proj_ellipsoid = vals[3]
                     self.orig_lat = float(vals[5])
                     self.orig_lon = float(vals[7])
-                    self.map_rot = float(vals[9])            
+                    self.map_rot = float(vals[9])
                 if vals[1] == 'AZIMUTHAL_EQUIDIST':
                     self.proj_name = 'AZIMUTHAL_EQUIDIST'
                     self.proj_ellipsoid = vals[3]
@@ -926,16 +926,18 @@ class NLLGrid(object):
             except KeyError:
                 raise ValueError(
                     'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
-            ip = Proj(proj='tmerc', lat_0=self.orig_lat, lon_0=self.orig_lon,
-                     ellps=ellps)
+            ip = Proj(
+                proj='tmerc', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                ellps=ellps)
         elif self.proj_name == 'AZIMUTHAL_EQUIDIST':
             try:
                 ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
             except KeyError:
                 raise ValueError(
                     'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
-            ip = Proj(proj='aeqd', lat_0=self.orig_lat, lon_0=self.orig_lon,
-                     ellps=ellps)
+            ip = Proj(
+                proj='aeqd', lat_0=self.orig_lat, lon_0=self.orig_lon,
+                ellps=ellps)
         elif self.proj_name == 'SIMPLE':
             ip = Proj(proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
         else:
