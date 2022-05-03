@@ -2,12 +2,11 @@
 
 Python class for reading and writing [NonLinLoc] grid files.
 
-(c) 2015-2021 Claudio Satriano, Natalia Poiata
+(c) 2015-2022 Claudio Satriano, Natalia Poiata
 
 [![cf-badge]][cf-link]
 [![PyPI-badge]][PyPI-link]
 [![license-badge]][license-link]
-
 
 ## Installation
 
@@ -62,11 +61,10 @@ main directory by running:
 
 (use `pip install -e .` to install in developer mode).
 
-
-
 ## Getting Started
 
 ### Reading a NLL grid
+
 A NLL grid is composed of two files (`.hdr` and `.buf`).
 
 To read a NLL grid, do:
@@ -165,8 +163,6 @@ Note that if you want to use your grid as input for NonLinLoc
 array has to be transformed into slowness (in s/km) and multiplied
 by the grid step (in km).
 
-
-
 [cf-badge]: http://img.shields.io/conda/vn/conda-forge/nllgrid.svg
 [cf-link]: https://anaconda.org/conda-forge/nllgrid
 [PyPI-badge]: http://img.shields.io/pypi/v/nllgrid.svg
@@ -179,4 +175,3 @@ by the grid step (in km).
 [releases-link]: https://github.com/claudiodsf/nllgrid/releases
 [github-repo]: https://github.com/claudiodsf/nllgrid
 [CHANGELOG]: CHANGELOG.md
-
