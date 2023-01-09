@@ -568,7 +568,7 @@ class NLLGrid(object):
         """
         Get grid value at specified cartesian coordinates (x, y, z).
 
-        Returns a signle value, except for ANGLE and ANGLE2D grids,
+        Returns a single value, except for ANGLE and ANGLE2D grids,
         where (azimuth, dip, quality) is returned.
         """
         if array is not None:
