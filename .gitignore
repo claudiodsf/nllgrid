@@ -3,3 +3,4 @@ nllgrid.egg-info
 RELEASE-VERSION
 build/
 dist/
+.vscode
