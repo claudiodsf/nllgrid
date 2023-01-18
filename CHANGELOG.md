@@ -8,6 +8,7 @@ Python class for reading and writing
 ## unreleased
 
 - Added `TRANS_MERC` and `AZIMUTHAL_EQUIDIST` projections
+- Fix projections when `map_rot != 0`
 
 ## v1.4.2 - 2021-10-19
 

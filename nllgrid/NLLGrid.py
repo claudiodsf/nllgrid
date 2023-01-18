@@ -123,8 +123,8 @@ class NLLGrid(object):
         self.__proj_name = None
         self.__proj_ellipsoid = None
         self.__proj_function = None
-        self.orig_lat = float(0)
-        self.orig_lon = float(0)
+        self.__orig_lat = float(0)
+        self.__orig_lon = float(0)
         self.first_std_paral = 0
         self.second_std_paral = 0
         self.map_rot = float(0)
@@ -254,6 +254,26 @@ class NLLGrid(object):
             msg += 'Valid ellipsoids: {}'.format(valid_ellipsoids)
             raise ValueError(msg)
         self.__proj_ellipsoid = ellipsoid
+        # Reset proj_function
+        self.__proj_function = None
+
+    @property
+    def orig_lon(self):
+        return self.__orig_lon
+
+    @orig_lon.setter
+    def orig_lon(self, orig_lon):
+        self.__orig_lon = orig_lon
+        # Reset proj_function
+        self.__proj_function = None
+
+    @property
+    def orig_lat(self):
+        return self.__orig_lat
+
+    @orig_lat.setter
+    def orig_lat(self, orig_lat):
+        self.__orig_lat = orig_lat
         # Reset proj_function
         self.__proj_function = None
 
@@ -860,6 +880,8 @@ class NLLGrid(object):
         "Get the function to perform direct or inverse projections."
         if self.__proj_function is not None:
             return self.__proj_function
+        if self.proj_name is None:
+            raise RuntimeError('No geographical projection defined.')
         if self.proj_name != 'SIMPLE':
             try:
                 ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
@@ -896,10 +918,10 @@ class NLLGrid(object):
         y[np.isnan(lat)] = np.nan
         x = x / 1000.
         y = y / 1000.
-        # inverse rotation
+        # Rotate from East-North to map angle
         theta = np.radians(self.map_rot)
-        x1 = x*np.cos(theta) + y*np.sin(theta)
-        y1 = -x*np.sin(theta) + y*np.cos(theta)
+        x1 = x*np.cos(theta) - y*np.sin(theta)
+        y1 = x*np.sin(theta) + y*np.cos(theta)
         x = x1
         y = y1
         # Try to return the same type of lon, lat
@@ -921,9 +943,10 @@ class NLLGrid(object):
         y = np.array(y)
         x = x * 1000.
         y = y * 1000.
-        theta = np.radians(-self.map_rot)  # set negative
-        x1 = x*np.cos(theta) + y*np.sin(theta)
-        y1 = -x*np.sin(theta) + y*np.cos(theta)
+        # Rotate back coordinates to East-North
+        theta = np.radians(-self.map_rot)
+        x1 = x*np.cos(theta) - y*np.sin(theta)
+        y1 = x*np.sin(theta) + y*np.cos(theta)
         lon, lat = self.proj_function(x1, y1, inverse=True)
         return lon, lat
 
