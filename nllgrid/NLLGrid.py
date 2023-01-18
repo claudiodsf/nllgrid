@@ -15,7 +15,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import math
 import numpy as np
-from scipy.ndimage import zoom
+from scipy.ndimage import zoom, rotate
 from ctypes import Union, c_float, c_ushort
 from copy import deepcopy
 from pyproj import Proj
@@ -972,6 +972,23 @@ class NLLGrid(object):
         self.x_orig = -xlen_half
         self.y_orig = -ylen_half
 
+    def rotate(self, angle, fill_value=0.0):
+        """
+        Rotate the grid horizontally around its center counterclockwise by
+        the given angle (in degrees).
+
+        Values beyond the grid edge are filled using `fill_value`.
+
+        The gird is recentered (see `recenter()` method before rotation).
+        """
+        self.recenter()
+        self.array = rotate(
+            self.array, angle, axes=(1, 0), reshape=True,
+            mode='constant', cval=fill_value)
+        self.x_orig = -0.5 * self.nx * self.dx
+        self.y_orig = -0.5 * self.ny * self.dy
+        self.map_rot += angle
+
     def copy(self):
         """Get a deep copy of the grid object."""
         return deepcopy(self)
@@ -980,8 +997,10 @@ class NLLGrid(object):
 def main():
     """Test code.
 
-    It generates a gaussian grid and computes the 3D ellipsoid
+    Test 1: generate a gaussian grid and compute the 3D ellipsoid
     around the grid mean.
+
+    Test 2: grid rotation
     """
     import matplotlib.pyplot as plt
 
@@ -1008,10 +1027,12 @@ def main():
     nz = 11
     x_orig = -50
     y_orig = -100
-    grd = NLLGrid(nx=nx, ny=ny, nz=nz,
-                  dx=1, dy=1, dz=1,
-                  x_orig=x_orig, y_orig=y_orig)
-    print(grd)
+    grd = NLLGrid(
+        nx=nx, ny=ny, nz=nz,
+        dx=1, dy=1, dz=1,
+        x_orig=x_orig, y_orig=y_orig)
+    grd.basename = 'gaussian'
+    print(grd, '\n')
     grd.array = gauss3D((nx, ny, nz), 20, 10, 2, 30)
 
     # Compute statistics
@@ -1024,6 +1045,41 @@ def main():
     grd.plot_3D_point(axes, mean_xyz, color='g')
     grd.plot_3D_point(axes, max_xyz, color='r')
     grd.plot_ellipsoid(axes, mean_xyz=mean_xyz)
+    plt.show()
+
+    # Test rotation
+    grd = NLLGrid()
+    grd.proj_name = 'LAMBERT'
+    grd.proj_ellipsoid = 'WGS-84'
+    grd.orig_lat = 44
+    grd.orig_lon = 12
+    grd.first_std_paral = 43
+    grd.second_std_paral = 45
+    grd.basename = 'unrotated'
+    grd.array = np.ones((200, 100, 50))
+    grd.array[:, 50, :] = 2.
+    grd.array[100, :, :] = 3.
+    print(grd, '\n')
+
+    axes, cb = grd.plot(vmin=0, vmax=3, handle=True)
+    line_xy = np.vstack((
+        np.linspace(25, 100, 10),
+        np.linspace(10, 50, 10),
+    ))
+    line_lonlat = grd.iproject(line_xy[0], line_xy[1])
+    axes[0].plot(line_xy[0], line_xy[1], color='k')
+
+    grd_rot = grd.copy()
+    rot_angle = 10
+    grd_rot.rotate(rot_angle)
+    grd_rot.basename = 'rotated_{}'.format(rot_angle)
+    print(grd_rot, '\n')
+    axes, cb = grd_rot.plot(vmin=0, vmax=3, handle=True)
+    line_xy = grd_rot.project(line_lonlat[0], line_lonlat[1])
+    axes[0].plot(line_xy[0], line_xy[1], color='k')
+    line_lonlat = grd_rot.iproject(line_xy[0], line_xy[1])
+    line_xy = grd_rot.project(line_lonlat[0], line_lonlat[1])
+    axes[0].plot(line_xy[0], line_xy[1], color='r')
     plt.show()
 
 
