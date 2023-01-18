@@ -950,6 +950,28 @@ class NLLGrid(object):
         lon, lat = self.proj_function(x1, y1, inverse=True)
         return lon, lat
 
+    def recenter(self):
+        """
+        Move origin of grid cartesian system to the grid center.
+
+        The absolute position in space of the grid does not change (grid
+        projection is updated)
+
+        This operation updates `x_orig`, `y_orig`.
+        The values of `orig_lon` and `orig_lat` are also updated if a
+        geographic transform is defined.
+        """
+        xlen_half = 0.5 * self.nx * self.dx
+        ylen_half = 0.5 * self.ny * self.dy
+        try:
+            lon_half, lat_half = self.iproject(xlen_half, ylen_half)
+            self.orig_lon = lon_half
+            self.orig_lat = lat_half
+        except RuntimeError:
+            pass
+        self.x_orig = -xlen_half
+        self.y_orig = -ylen_half
+
     def copy(self):
         """Get a deep copy of the grid object."""
         return deepcopy(self)
