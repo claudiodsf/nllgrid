@@ -7,9 +7,10 @@ Python class for reading and writing
 
 ## unreleased
 
-- `NLLGrid.recenter()` method to move origin of grid cartesian system to the
-  grid center
-- `NLLGrid.rotate()` method to rotate the grid horizontally around its center
+- `NLLGrid.horizontal_recenter()` method to move the (x, y) origin of grid
+  cartesian system to the grid center
+- `NLLGrid.horizontal_rotate()` method to rotate the grid horizontally around
+  its center
 - Added `TRANS_MERC` and `AZIMUTHAL_EQUIDIST` projections
 - Fix projections when `map_rot != 0`
 

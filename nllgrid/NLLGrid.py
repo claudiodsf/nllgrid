@@ -113,8 +113,11 @@ class NLLGrid(object):
         self.nx = nx
         self.ny = ny
         self.nz = nz
+        # (x_orig, y_orig) are the coordinates of the lower left point
+        # in map view
         self.x_orig = x_orig
         self.y_orig = y_orig
+        # z_orig is the coordinate of the shallowest point
         self.z_orig = z_orig
         self.dx = dx
         self.dy = dy
@@ -123,6 +126,8 @@ class NLLGrid(object):
         self.__proj_name = None
         self.__proj_ellipsoid = None
         self.__proj_function = None
+        # orig_lat and orig_lon are the geographical coordinates of the
+        # point (x_orig, y_orig)
         self.__orig_lat = float(0)
         self.__orig_lon = float(0)
         self.first_std_paral = 0
@@ -950,21 +955,31 @@ class NLLGrid(object):
         lon, lat = self.proj_function(x1, y1, inverse=True)
         return lon, lat
 
-    def recenter(self):
+    def horizontal_recenter(self):
         """
-        Move origin of grid cartesian system to the grid center.
+        Move the (x, y) origin of grid cartesian system to the grid center.
 
         The absolute position in space of the grid does not change (grid
-        projection is updated)
+        projection is updated).
 
-        This operation updates `x_orig`, `y_orig`.
+        This operation updates `x_orig`, `y_orig`. Vertical coordinates are not
+        modified.
+
         The values of `orig_lon` and `orig_lat` are also updated if a
         geographic transform is defined.
         """
         xlen_half = 0.5 * self.nx * self.dx
         ylen_half = 0.5 * self.ny * self.dy
+        # The following try/except block is to redefine the geographical
+        # coordinates of the grid center (the new (0, 0) point).
+        # Only executed if a geopgraphical projection is available.
         try:
-            lon_half, lat_half = self.iproject(xlen_half, ylen_half)
+            # Find coordinates of the grid center before recentering the grid
+            # (x_orig, y_orig) is the lower left point, so the grid center is
+            # (x_orig + xlen_half, y_orig + y_len_half)
+            grid_center_x = self.x_orig + xlen_half
+            grid_center_y = self.y_orig + ylen_half
+            lon_half, lat_half = self.iproject(grid_center_x, grid_center_y)
             self.orig_lon = lon_half
             self.orig_lat = lat_half
         except RuntimeError:
@@ -972,7 +987,7 @@ class NLLGrid(object):
         self.x_orig = -xlen_half
         self.y_orig = -ylen_half
 
-    def rotate(self, angle, fill_value=0.0):
+    def horizontal_rotate(self, angle, fill_value=0.0):
         """
         Rotate the grid horizontally around its center counterclockwise by
         the given angle (in degrees).
@@ -981,7 +996,7 @@ class NLLGrid(object):
 
         The gird is recentered (see `recenter()` method before rotation).
         """
-        self.recenter()
+        self.horizontal_recenter()
         self.array = rotate(
             self.array, angle, axes=(1, 0), reshape=True,
             mode='constant', cval=fill_value)
@@ -1047,10 +1062,12 @@ def main():
     grd.plot_ellipsoid(axes, mean_xyz=mean_xyz)
     plt.show()
 
-    # Test rotation
+    # Test recenter and rotation
     grd = NLLGrid()
     grd.proj_name = 'LAMBERT'
     grd.proj_ellipsoid = 'WGS-84'
+    grd.x_orig = 30
+    grd.y_orig = 15
     grd.orig_lat = 44
     grd.orig_lon = 12
     grd.first_std_paral = 43
@@ -1069,9 +1086,20 @@ def main():
     line_lonlat = grd.iproject(line_xy[0], line_xy[1])
     axes[0].plot(line_xy[0], line_xy[1], color='k')
 
+    grd_rec = grd.copy()
+    grd_rec.horizontal_recenter()
+    grd_rec.basename = 'recentered'
+    print(grd_rec, '\n')
+    axes, cb = grd_rec.plot(vmin=0, vmax=3, handle=True)
+    line_xy = grd_rec.project(line_lonlat[0], line_lonlat[1])
+    axes[0].plot(line_xy[0], line_xy[1], color='k')
+    line_lonlat = grd_rec.iproject(line_xy[0], line_xy[1])
+    line_xy = grd_rec.project(line_lonlat[0], line_lonlat[1])
+    axes[0].plot(line_xy[0], line_xy[1], color='r')
+
     grd_rot = grd.copy()
     rot_angle = 10
-    grd_rot.rotate(rot_angle)
+    grd_rot.horizontal_rotate(rot_angle)
     grd_rot.basename = 'rotated_{}'.format(rot_angle)
     print(grd_rot, '\n')
     axes, cb = grd_rot.plot(vmin=0, vmax=3, handle=True)
@@ -1080,6 +1108,7 @@ def main():
     line_lonlat = grd_rot.iproject(line_xy[0], line_xy[1])
     line_xy = grd_rot.project(line_lonlat[0], line_lonlat[1])
     axes[0].plot(line_xy[0], line_xy[1], color='r')
+
     plt.show()
 
 
