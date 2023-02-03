@@ -7,6 +7,7 @@ Python class for reading and writing [NonLinLoc] grid files.
 [![cf-badge]][cf-link]
 [![PyPI-badge]][PyPI-link]
 [![license-badge]][license-link]
+[![docs-badge]][docs-link]
 
 ## Installation
 
@@ -169,6 +170,8 @@ by the grid step (in km).
 [PyPI-link]: https://pypi.python.org/pypi/nllgrid
 [license-badge]: https://img.shields.io/badge/license-CeCILL--2.1-green
 [license-link]: http://www.cecill.info/licences.en.html
+[docs-badge]: https://readthedocs.org/projects/nllgrid/badge/?version=latest
+[docs-link]: https://nllgrid.readthedocs.io/en/latest/?badge=latest
 
 [NonLinLoc]: http://alomax.free.fr/nlloc
 [Anaconda]: https://www.anaconda.com/products/individual
