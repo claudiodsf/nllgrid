@@ -13,6 +13,9 @@
 import os
 import sys
 from unittest.mock import Mock
+sys.modules['numpy'] = Mock()
+sys.modules['scipy'] = Mock()
+sys.modules['scipy.ndimage'] = Mock()
 sys.modules['pyproj'] = Mock()
 sys.path.insert(0, os.path.abspath('..'))
 from nllgrid._version import get_versions #NOQA
