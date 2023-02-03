@@ -91,66 +91,144 @@ ellipsoid_name_mapping = {
 
 
 class TakeOffAngles(Union):
-    """Union-style class for decoding take off angles."""
+    """
+    Union-style class for decoding take off angles.
+
+    The take off angles are stored in the grid file as a 16-bit unsigned
+    integer. The first 8 bits are the take off angle in degrees, the
+    second 8 bits are the take off angle in minutes.
+
+    The class has two attributes, fval and ival, which are the float
+    and integer representations of the take off angle.
+    """
 
     _fields_ = [('fval', c_float),
                 ('ival', c_ushort*2)]
 
 
 class NLLGrid(object):
-    """Class for manipulating NLL grid files.
-
-    It has methods to read and write grid files,
-    compute statistics and plot.
     """
+    Class for manipulating NonLinLoc grid files.
+
+    It provides methods to read and write grid files,
+    compute statistics and plot.
+
+    Parameters
+    ----------
+    basename : str, optional
+        The name of the grid file.
+    nx : int, optional
+        Number of grid points in x direction.
+    ny : int, optional
+        Number of grid points in y direction.
+    nz : int, optional
+        Number of grid points in z direction.
+    x_orig : float, optional
+        X coordinate of the lower left point in map view.
+    y_orig : float, optional
+        Y coordinate of the lower left point in map view.
+    z_orig : float, optional
+        Z coordinate of the shallowest point.
+    dx : float, optional
+        Spacing of grid points in x direction.
+    dy : float, optional
+        Spacing of grid points in y direction.
+    dz : float, optional
+        Spacing of grid points in z direction.
+    """
+    #: The name of the grid file
+    basename = None
+    #: Number of grid points in x direction
+    nx = 1.
+    #: Number of grid points in y direction
+    ny = 1.
+    #: Number of grid points in z direction
+    nz = 1.
+    #: X coordinate of the lower left point in map view
+    x_orig = 0.
+    #: Y coordinate of the lower left point in map view
+    y_orig = 0.
+    #: Z coordinate of the shallowest point
+    z_orig = 0.
+    #: Spacing of grid points in x direction
+    dx = 1.
+    #: Spacing of grid points in y direction
+    dy = 1.
+    #: Spacing of grid points in z direction
+    dz = 1.
+    #: The grid data as a 3D numpy array
+    array = None
+    #: The type of the grid as a string
+    type = None
+    __type = None
+    #: Datatype for floating point numbers (FLOAT or DOUBLE)
+    float_type = 'FLOAT'
+    __float_type = 'FLOAT'
+    #: Longitude of the grid origin
+    orig_lon = None
+    __orig_lon = None
+    #: Latitude of the grid origin
+    orig_lat = None
+    __orig_lat = None
+    #: The name of the projection
+    proj_name = None
+    __proj_name = None
+    #: Latitude of the first standard parallel for LAMBERT projection
+    first_std_paral = None
+    #: Latitude of the second standard parallel for LAMBERT projection
+    second_std_paral = None
+    #: Rotation angle of the grid in map view, counter-clockwise
+    map_rot = 0.
+    #: The name of the projection ellipsoid
+    proj_ellipsoid = None
+    __proj_ellipsoid = None
+    #: The projection function to perform direct and inverse projections
+    proj_function = None
+    __proj_function = None
+    #: Name of the station
+    station = None
+    #: X coordinate of the station
+    sta_x = None
+    #: Y coordinate of the station
+    sta_y = None
+    #: Z coordinate of the station
+    sta_z = None
+    #: Coordinates of the grid mean point
+    xyz_mean = None
+    #: Covariance matrix of the grid
+    xyz_cov = None
+    #: The 68% confidence ellipsoid for the grid
+    ellipsoid = None
 
     def __init__(self,
                  basename=None,
                  nx=1, ny=1, nz=1,
                  x_orig=0., y_orig=0., z_orig=0.,
                  dx=1., dy=1., dz=1.):
-        """Init a NLLGrid object."""
-        self.nx = nx
-        self.ny = ny
-        self.nz = nz
-        # (x_orig, y_orig) are the coordinates of the lower left point
-        # in map view
-        self.x_orig = x_orig
-        self.y_orig = y_orig
-        # z_orig is the coordinate of the shallowest point
-        self.z_orig = z_orig
-        self.dx = dx
-        self.dy = dy
-        self.dz = dz
-        self.__type = None
-        self.__proj_name = None
-        self.__proj_ellipsoid = None
-        self.__proj_function = None
-        # orig_lat and orig_lon are the geographical coordinates of the
-        # point (x_orig, y_orig)
-        self.__orig_lat = float(0)
-        self.__orig_lon = float(0)
-        self.first_std_paral = 0
-        self.second_std_paral = 0
-        self.map_rot = float(0)
-        self.station = None
-        self.sta_x = float(0)
-        self.sta_y = float(0)
-        self.sta_z = float(0)
-        self.float_type = 'FLOAT'
-        self.__array = None
-        self.xyz_mean = None
-        self.xyz_cov = None
-        self.ellipsoid = None
+        """
+        Initialize a NLLGrid object.
+
+        If `basename` is not `None`, `read_hdr_file` and `read_buf_file`
+        methods are called.
+        """
         if basename is not None:
             self.basename = self.remove_extension(basename)
             self.read_hdr_file()
             self.read_buf_file()
         else:
             self.basename = None
+        self.nx = nx
+        self.ny = ny
+        self.nz = nz
+        self.x_orig = x_orig
+        self.y_orig = y_orig
+        self.z_orig = z_orig
+        self.dx = dx
+        self.dy = dy
+        self.dz = dz
 
     def __str__(self):
-        """Info string."""
+        """Return a string representation of the object."""
         s = 'basename: {}\n'.format(self.basename)
         s += 'nx: {} ny: {} nz: {}\n'.format(self.nx, self.ny, self.nz)
         s += 'x_orig: {} y_orig: {} z_orig: {}\n'.format(
@@ -165,10 +243,25 @@ class NLLGrid(object):
         return s
 
     def _repr_pretty_(self, p, cycle):
+        """Pretty print."""
         p.text(self.__str__())
 
     def __getitem__(self, key):
-        """Make the grid object array-like."""
+        """
+        Return the value at the given index.
+
+        Make the grid object behave like a numpy array.
+
+        Parameters
+        ----------
+        key : tuple
+            The index tuple.
+
+        Returns
+        -------
+        value : float
+            The value at the given index.
+        """
         if self.type in ['ANGLE', 'ANGLE2D']:
             return self.dip[key]
         elif self.array is not None:
@@ -176,7 +269,6 @@ class NLLGrid(object):
 
     @property
     def array(self):
-        """Property getter."""
         return self.__array
 
     @array.setter
@@ -189,7 +281,6 @@ class NLLGrid(object):
 
     @property
     def type(self):
-        """Property getter."""
         return self.__type
 
     @type.setter
@@ -206,7 +297,6 @@ class NLLGrid(object):
 
     @property
     def float_type(self):
-        """Property getter."""
         return self.__float_type
 
     @float_type.setter
@@ -217,7 +307,7 @@ class NLLGrid(object):
             raise ValueError('Float type must be a string')
         if float_type not in valid_float_types:
             msg = 'Invalid float type: {}\n'.format(float_type)
-            msg += 'Valid grid types are: {}'.format(
+            msg += 'Valid float types are: {}'.format(
                 tuple(valid_float_types.keys()))
             raise ValueError(msg)
         self.__np_float_type = valid_float_types[float_type]
@@ -225,7 +315,6 @@ class NLLGrid(object):
 
     @property
     def proj_name(self):
-        """Property getter."""
         return self.__proj_name
 
     @proj_name.setter
@@ -244,7 +333,6 @@ class NLLGrid(object):
 
     @property
     def proj_ellipsoid(self):
-        """Property getter."""
         return self.__proj_ellipsoid
 
     @proj_ellipsoid.setter
@@ -268,7 +356,7 @@ class NLLGrid(object):
 
     @orig_lon.setter
     def orig_lon(self, orig_lon):
-        self.__orig_lon = orig_lon
+        self.__orig_lon = float(orig_lon)
         # Reset proj_function
         self.__proj_function = None
 
@@ -278,19 +366,52 @@ class NLLGrid(object):
 
     @orig_lat.setter
     def orig_lat(self, orig_lat):
-        self.__orig_lat = orig_lat
+        self.__orig_lat = float(orig_lat)
         # Reset proj_function
         self.__proj_function = None
 
     def remove_extension(self, basename):
-        """Remove '.hdr' or '.buf' suffixes, if there."""
+        """
+        Remove '.hdr' or '.buf' suffixes, if present.
+
+        Parameters
+        ----------
+        basename : str
+            The basename of the grid file.
+
+        Returns
+        -------
+        str
+            The basename without the '.hdr' or '.buf' suffixes.
+
+        Example
+        -------
+        >>> grd = NLLGrid()
+        >>> grd.remove_extension('test.hdr')
+        'test'
+        >>> grd.remove_extension('test.buf')
+        'test'
+        >>> grd.remove_extension('test')
+        'test'
+        """
         bntmp = basename.rsplit('.hdr', 1)[0]
         return bntmp.rsplit('.buf', 1)[0]
 
     def init_array(self):
-        """Init the array to zeros.
+        """Initialize the grid array to zeros.
 
-        Example of usage:
+        Returns
+        -------
+        None
+
+        Note
+        ----
+        This method sets the `array` attribute of the `NLLGrid` instance
+        to a 3D numpy array of shape `(self.nx, self.ny, self.nz)` and data
+        type `float`, filled with zeros.
+
+        Example
+        -------
         >>> grd = NLLGrid(nx=20, ny=20, nz=30, dx=2., dy=2., dz=2.)
         >>> grd.init_array()
         >>> grd.array[2, 4, 10] = 3.
@@ -298,7 +419,47 @@ class NLLGrid(object):
         self.array = np.zeros((self.nx, self.ny, self.nz), float)
 
     def read_hdr_file(self, basename=None):
-        """Read header file of NLL grid format."""
+        """
+        Read header file of NLL grid format.
+
+        The header file provides information about the 3D grid such as the
+        number of gridpoints in each dimension, the origin, the cell spacing,
+        the type of grid, the data type of the values, and the geographic
+        projection.
+
+        Parameters
+        ----------
+        basename : str, optional
+            Basename of the header file or full file name.
+            If provided, the `basename` attribute of the class instance
+            will be updated.
+            If not provided, the `basename` attribute of the class instance
+            will be used.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        FileNotFoundError
+            If the header file is not found.
+
+        Example
+        -------
+        >>> grd = NLLGrid()
+        >>> grd.read_hdr_file('test.hdr')
+        >>> print(grd)
+        basename: test
+        nx: 2 ny: 301 nz: 61
+        x_orig: 0.0 y_orig: 0.0 z_orig: -3.0
+        dx: 5.0 dy: 5.0 dz: 5.0
+        grid_type: SLOW_LEN
+        float_type: FLOAT
+        transform: TRANSFORM  LAMBERT RefEllipsoid Clarke-1880
+        LatOrig 15.000000  LongOrig -61.000000  FirstStdParal 10.000000
+        SecondStdParal 20.000000  RotCW 0.000000
+        """
         if basename is not None:
             self.basename = self.remove_extension(basename)
         filename = self.basename + '.hdr'
@@ -366,7 +527,41 @@ class NLLGrid(object):
                 self.sta_z = float(vals[3])
 
     def read_buf_file(self, basename=None):
-        """Read buf file as a 3d array."""
+        """
+        Read buf file as a 3d array.
+
+        The buffer file is a binary representation of the 3D array stored
+        in the `array` attribute of the class instance.
+
+        Parameters
+        ----------
+        basename : str, optional
+            Basename of the buffer file or full file name.
+            If provided, the `basename` attribute of the class instance
+            will be updated.
+            If not provided, the `basename` attribute of the class instance
+            will be used.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the buffer file is not found.
+        ValueError
+            If there are not enough data values in buf file.
+
+        Example
+        -------
+        >>> grd = NLLGrid()
+        >>> grd.read_buf_file('test.buf')
+        >>> print(grd)
+        basename: test
+        nx: 1 ny: 1 nz: 1
+        x_orig: 0.0 y_orig: 0.0 z_orig: 0.0
+        dx: 1.0 dy: 1.0 dz: 1.0
+        grid_type: None
+        float_type: FLOAT
+        transform: None
+        """
         if basename is not None:
             self.basename = self.remove_extension(basename)
         filename = self.basename + '.buf'
@@ -397,7 +592,24 @@ class NLLGrid(object):
             self.array = np.array(buf).reshape(self.nx, self.ny, self.nz)
 
     def write_hdr_file(self, basename=None):
-        """Write header file of NLL grid format."""
+        """
+        Write header file in NLL grid format.
+
+        The header file provides information about the 3D grid such as the
+        number of gridpoints in each dimension, the origin, the cell spacing,
+        the type of grid, the data type of the values, and the geographic
+        projection.
+
+        Parameters
+        ----------
+        basename : str, optional
+            Base name of the header file. If not provided, the `basename`
+            attribute of the class instance will be used.
+
+        Returns
+        -------
+        None
+        """
         if basename is not None:
             self.basename = basename
         filename = self.basename + '.hdr'
@@ -421,7 +633,28 @@ class NLLGrid(object):
                 fp.write(line)
 
     def write_buf_file(self, basename=None):
-        """Write buf file as a 3d array."""
+        """
+        Write buffer file as a 3D array.
+
+        The buffer file is a binary representation of the 3D array stored
+        in the `array` attribute of the class instance.
+
+        Parameters
+        ----------
+        basename : str, optional
+            Base name of the buffer file. If not provided, the `basename`
+            attribute of the class instance will be used.
+
+        Raises
+        ------
+        NotImplementedError
+            If the grid type is 'ANGLE' or 'ANGLE2D'.
+            Writing buf file is not supported for these grid types.
+
+        Returns
+        -------
+        None
+        """
         if self.type in ['ANGLE', 'ANGLE2D']:
             raise NotImplementedError(
                 'Writing buf file not implemented for {} grid.'.format(
@@ -436,7 +669,14 @@ class NLLGrid(object):
             self.array.astype(self.__np_float_type).tofile(fp)
 
     def get_transform_line(self):
-        """Get the transform line in NLL hdr format."""
+        """
+        Get the transform line in NLL hdr format.
+
+        Returns
+        -------
+        line : str
+            A string representing the transform line in NLL hdr format.
+        """
         if self.proj_name == 'NONE':
             return 'TRANSFORM  NONE'
         if self.proj_name == 'SIMPLE':
@@ -467,40 +707,112 @@ class NLLGrid(object):
             return line
 
     def get_xyz(self, i, j, k):
-        """Get cartesian coordinates (x, y, z) for grid indexes (i, j, k)."""
+        """
+        Get cartesian coordinates (x, y, z) for grid indexes (i, j, k).
+
+        Parameters
+        ----------
+        i : int
+            The index along the x-axis.
+        j : int
+            The index along the y-axis.
+        k : int
+            The index along the z-axis.
+
+        Returns
+        -------
+        x : float
+            The x-coordinate in cartesian space.
+        y : float
+            The y-coordinate in cartesian space.
+        z : float
+            The z-coordinate in cartesian space.
+        """
         x = i * self.dx + self.x_orig
         y = j * self.dy + self.y_orig
         z = k * self.dz + self.z_orig
         return x, y, z
 
     def get_ijk(self, x, y, z):
-        """Get grid indexes (i, j, k) for cartesian coordinates (x, y, z)."""
+        """
+        Get grid indexes (i, j, k) for cartesian coordinates (x, y, z).
+
+        Parameters
+        ----------
+        x : float
+            The x-coordinate in cartesian space.
+        y : float
+            The y-coordinate in cartesian space.
+        z : float
+            The z-coordinate in cartesian space.
+
+        Returns
+        -------
+        i : int
+            The index along the x-axis.
+        j : int
+            The index along the y-axis.
+        k : int
+            The index along the z-axis.
+        """
         i = np.floor((x - self.x_orig) / self.dx).astype(int)
         j = np.floor((y - self.y_orig) / self.dy).astype(int)
         k = np.floor((z - self.z_orig) / self.dz).astype(int)
         return i, j, k
 
     def get_ijk_max(self):
-        """Return the indexes (i, j, k) of the grid max point."""
+        """
+        Return the indexes (i, j, k) of the grid max point.
+
+        Returns
+        -------
+        tuple of ints or None
+            The 3D index of the grid max point.
+            Returns None if `self.array` is None.
+        """
         if self.array is None:
             return None
         return np.unravel_index(self.array.argmax(), self.array.shape)
 
     def get_ijk_min(self):
-        """Return the indexes (i,j,k) of the grid min point."""
+        """
+        Return the indexes (i,j,k) of the grid min point.
+
+        Returns
+        -------
+        tuple of ints or None
+            The 3D index of the grid min point.
+            Returns None if `self.array` is None.
+        """
         if self.array is None:
             return None
         return np.unravel_index(self.array.argmin(), self.array.shape)
 
     def get_xyz_max(self):
-        """Return the coordinates (x,y,z) of the grid max point."""
+        """
+        Return the coordinates (x,y,z) of the grid max point.
+
+        Returns
+        -------
+        tuple of float or None
+            The 3D coordinates of the grid max point.
+            Returns None if `self.array` is None.
+        """
         ijk_max = self.get_ijk_max()
         if ijk_max is None:
             return None
         return self.get_xyz(*ijk_max)
 
     def get_xyz_min(self):
-        """Return the coordinates (x,y,z) of the grid min point."""
+        """
+        Return the coordinates (x,y,z) of the grid min point.
+
+        Returns
+        -------
+        tuple of float or None
+            The 3D coordinates of the grid min point.
+            Returns None if `self.array` is None.
+        """
         ijk_min = self.get_ijk_min()
         if ijk_min is None:
             return None
@@ -514,7 +826,18 @@ class NLLGrid(object):
         return self.get_ijk(*xyz_mean)
 
     def get_xyz_mean(self):
-        """Return the coordinates (x,y,z) of the grid mean point."""
+        """
+        Calculate and return the mean (x,y,z) coordinate of the grid.
+
+        Returns
+        -------
+        xmean, ymean, zmean : float
+            Mean x, y, and z coordinates, respectively.
+
+        Note
+        ----
+        If the grid array is not set, None is returned.
+        """
         if self.array is None:
             return None
         xx = np.arange(0, self.nx) * self.dx + self.x_orig
@@ -529,7 +852,16 @@ class NLLGrid(object):
         return (xmean, ymean, zmean)
 
     def get_xyz_cov(self):
-        """Return the grid covariance respect to the (x,y,z) mean point."""
+        """
+        Return the covariance matrix of the grid with respect to the mean point
+        in (x,y,z).
+
+        Returns
+        -------
+        cov : ndarray, shape (3,3)
+            The covariance matrix of the grid with respect to the mean point
+            in (x,y,z). If the grid is None, returns None.
+        """
         if self.array is None:
             return None
         xyz_mean = self.get_xyz_mean()
@@ -558,7 +890,23 @@ class NLLGrid(object):
         return cov
 
     def get_xyz_ellipsoid(self):
-        """Return the 68% confidence ellipsoid."""
+        """
+        Return the 68% confidence ellipsoid.
+
+        Calculates the 68% confidence ellipsoid from the covariance matrix
+        obtained by :func:`get_xyz_cov`. The calculated ellipsoid object
+        is stored as an instance attribute `ellipsoid`.
+
+        Returns
+        -------
+        Ellipsoid3D
+            The 68% confidence ellipsoid.
+
+        Note
+        ----
+        This method is a python translation of the CalcErrorEllipsoid()
+        function from the NonLinLoc package, written by Anthony Lomax.
+        """
         try:
             from .ellipsoid import Ellipsoid3D
         except ImportError:
@@ -591,10 +939,34 @@ class NLLGrid(object):
 
     def get_value(self, x, y, z, array=None):
         """
-        Get grid value at specified cartesian coordinates (x, y, z).
+        Get the grid value at specified cartesian coordinates (x, y, z).
 
-        Returns a single value, except for ANGLE and ANGLE2D grids,
-        where (azimuth, dip, quality) is returned.
+        Parameters
+        ----------
+        x : float
+            The x coordinate.
+        y : float
+            The y coordinate.
+        z : float
+            The z coordinate.
+        array : numpy.ndarray, optional
+            The 3D array to use, by default None.
+            If not provided, the instance's `array` attribute is used.
+
+        Returns
+        -------
+        value : float or tuple of 3 float values
+            The grid value at the specified cartesian coordinates.
+            If the grid type is 'ANGLE' or 'ANGLE2D', a tuple of
+            (azimuth, dip, quality) is returned.
+
+        Raises
+        ------
+        NotImplementedError
+            If the grid type is 'ANGLE' or 'ANGLE2D' and an array argument
+            is provided.
+        ValueError
+            If the specified coordinates are outside of the grid's extent.
         """
         if array is not None:
             if self.type in ['ANGLE', 'ANGLE2D']:
@@ -625,7 +997,15 @@ class NLLGrid(object):
             return array[i, j, k]
 
     def get_extent(self):
-        """Get the grid extent in cartesian units (generally km)."""
+        """
+        Get the grid extent in cartesian units.
+
+        Returns
+        -------
+        extent : tuple
+            Tuple of x_min, x_max, y_min, y_max, z_min, z_max values
+            in cartesian units (generally km).
+        """
         extent = (self.x_orig - self.dx / 2,
                   self.x_orig + self.nx * self.dx + self.dx / 2,
                   self.y_orig - self.dy / 2,
@@ -636,34 +1016,103 @@ class NLLGrid(object):
         return extent
 
     def get_xy_extent(self):
-        """Get the grid xy extent in cartesian units (generally km)."""
+        """
+        Get the grid xy extent in cartesian units.
+
+        Returns
+        -------
+        extent : tuple
+            Tuple of x_min, x_max, y_min, y_max values in cartesian units
+            (generally km).
+        """
         return self.get_extent()[0:4]
 
     def get_xz_extent(self):
-        """Get the grid xz extent in cartesian units (generally km)."""
+        """
+        Get the grid xz extent in cartesian units.
+
+        Returns
+        -------
+        extent : tuple
+            Tuple of x_min, x_max, z_min, z_max values in cartesian units
+            (generally km).
+        """
         return self.get_extent()[0:2] + self.get_extent()[4:]
 
     def get_zx_extent(self):
-        """Get the grid zx extent in cartesian units (generally km)."""
+        """
+        Get the grid zx extent in cartesian units.
+
+        Returns
+        -------
+        extent : tuple
+            Tuple of z_min, z_max, x_min, x_max values in cartesian units
+            (generally km).
+        """
         return self.get_extent()[4:] + self.get_extent()[0:2]
 
     def get_yz_extent(self):
-        """Get the grid yz extent in cartesian units (generally km)."""
+        """
+        Get the grid yz extent in cartesian units.
+
+        Returns
+        -------
+        extent : tuple
+            Tuple of y_min, y_max, z_min, z_max values in cartesian units
+            (generally km).
+        """
         return self.get_extent()[2:]
 
     def get_zy_extent(self):
-        """Get the grid zy extent in cartesian units (generally km)."""
+        """
+        Get the grid zy extent in cartesian units.
+
+        Returns
+        -------
+        extent : tuple
+            Tuple of z_min, z_max, y_min, y_max values in cartesian units
+            (generally km).
+        """
         return self.get_extent()[4:] + self.get_extent()[2:4]
 
     def max(self):
-        """Get the grid max value."""
+        """
+        Get the maximum value of the grid.
+
+        Returns
+        -------
+        float
+            The maximum value of the grid.
+
+        Note
+        ----
+        If the grid type is 'ANGLE' or 'ANGLE2D', the maximum value of
+        `self.dip` is returned. Otherwise, the maximum value of `self.array`
+        """
         if self.type in ['ANGLE', 'ANGLE2D']:
             return np.nanmax(self.dip)
         if self.array is not None:
             return np.nanmax(self.array)
 
     def resample(self, dx, dy, dz):
-        """Resample grid to (dx, dy, dz)."""
+        """
+        Resample the grid to the specified resolution.
+
+        Parameters
+        ----------
+        dx : float
+            The new x-resolution of the grid.
+        dy : float
+            The new y-resolution of the grid.
+        dz : float
+            The new z-resolution of the grid.
+
+        Raises
+        ------
+        NotImplementedError
+            If the grid type is 'ANGLE' or 'ANGLE2D', as resampling is not
+            implemented for these grid types.
+        """
         if self.type in ['ANGLE', 'ANGLE2D']:
             raise NotImplementedError(
                 'Resample not implemented for {} grid.'.format(self.type))
@@ -679,9 +1128,33 @@ class NLLGrid(object):
         self.dz = dz
 
     def get_plot_axes(self, figure=None, ax_xy=None):
-        """Get the axes for the three projections, plus the colorbar axis.
+        """
+        Get the axes for the three projections and colorbar axis.
 
-        Requires Matplotlib.
+        Parameters
+        ----------
+        figure : object, optional
+            Matplotlib figure object. The default is None.
+        ax_xy : object, optional
+            Matplotlib axis object for x-y projection. The default is None.
+
+        Returns
+        -------
+        ax_xy : object
+            Matplotlib axis object for x-y projection.
+        ax_xz : object
+            Matplotlib axis object for x-z projection.
+        ax_zy : object
+            Matplotlib axis object for z-y projection.
+        ax_cb : object
+            Matplotlib axis object for colorbar.
+
+        Note
+        ----
+        Requires matplotlib.
+        If `ax_xy` is not provided, a new figure and axis will be created.
+        If `figure` is not provided, the figure will be obtained from
+        `ax_xy`.
         """
         import matplotlib.pyplot as plt
         from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -744,9 +1217,41 @@ class NLLGrid(object):
 
     def plot(self, slice_index=None, handle=False, figure=None, ax_xy=None,
              vmin=None, vmax=None, cmap=None, line_color='white', array=None):
-        """Plot the grid using three orthogonal projections.
+        """
+        Plot the grid using three orthogonal projections.
 
-        Requires Matplotlib.
+        Parameters
+        ----------
+        slice_index : int, optional
+            Index of the slice to plot. The default is None.
+        handle : bool, optional
+            Whether to return the handle of the plot. The default is False.
+        figure : object, optional
+            Matplotlib figure object. The default is None.
+        ax_xy : object, optional
+            Matplotlib axis object for x-y projection. The default is None.
+        vmin : float, optional
+            Lower limit for the color scale. The default is None.
+        vmax : float, optional
+            Upper limit for the color scale. The default is None.
+        cmap : object, optional
+            Colormap to use for the plot. The default is None.
+        line_color : str, optional
+            Color of the grid lines. The default is 'white'.
+        array : array_like, optional
+            Array to plot. The default is None.
+
+        Returns
+        -------
+        fig : object
+            Matplotlib figure object.
+
+        Note
+        ----
+        Requires matplotlib.
+        If `ax_xy` is not provided, a new figure and axis will be created.
+        If `figure` is not provided, the figure will be obtained from
+        `ax_xy`.
         """
         import matplotlib.pyplot as plt
         from matplotlib import ticker
@@ -825,8 +1330,24 @@ class NLLGrid(object):
         else:
             plt.show()
 
-    def plot_3D_point(self, axes, point, color='r'):
-        """Plot a point (i, j, k) on the grid."""
+    def plot_3D_point(self, axes, point, color='red'):
+        """
+        Plot a 3D point on the grid in three different projections.
+
+        Parameters
+        ----------
+        axes : tuple of matplotlib.axes.Axes
+            Tuple of 3 axes objects to plot the point.
+        point : tuple of float
+            Tuple of the 3 point grid coordinates.
+        color : str, optional
+            Color of the point. Default is 'red'.
+
+        Raises
+        ------
+        NotImplementedError
+            If the grid is not 3D.
+        """
         if self.nx <= 2:
             raise NotImplementedError(
                 'This method is supported only for 3D grids')
@@ -836,7 +1357,31 @@ class NLLGrid(object):
         ax_yz.scatter(point[2], point[1], color=color)
 
     def plot_ellipsoid(self, axes, ellipsoid=None, mean_xyz=None):
-        """Plot an ellipsoid on the grid."""
+        """
+        Plot an ellipsoid on the grid.
+
+        Parameters
+        ----------
+        axes : tuple of matplotlib.axes.Axes
+            Tuple of 3 axes objects to plot the ellipsoid.
+        ellipsoid : object, optional
+            Ellipsoid to plot. Default is `None`, in which case
+            `self.get_xyz_ellipsoid()` is called.
+        mean_xyz : tuple of floats, optional
+            Mean of the ellipsoid. Default is `None`, in which case
+            `self.get_xyz_mean()` is called.
+
+        Raises
+        ------
+        NotImplementedError
+            If the grid is not 3D.
+
+        Note
+        ----
+        This method is supported only for 3D grids.
+        The method uses the `Vect3D`, `ellipsiod2Axes`, and `toEllipsoid3D`
+        functions from the `ellipsoid` module.
+        """
         if self.nx <= 2:
             raise NotImplementedError(
                 'This method is supported only for 3D grids')
@@ -882,7 +1427,6 @@ class NLLGrid(object):
 
     @property
     def proj_function(self):
-        "Get the function to perform direct or inverse projections."
         if self.__proj_function is not None:
             return self.__proj_function
         if self.proj_name is None:
@@ -915,7 +1459,23 @@ class NLLGrid(object):
         return self.__proj_function
 
     def project(self, lon, lat):
-        """Project lon, lat into grid coordinates."""
+        """
+        Project longitude and latitude coordinates into grid coordinates.
+
+        Parameters
+        ----------
+        lon : float or array-like
+            The longitude coordinates to be projected.
+        lat : float or array-like
+            The latitude coordinates to be projected.
+
+        Returns
+        -------
+        float or array-like
+            The projected grid x-coordinates.
+        float or array-like
+            The projected grid y-coordinates.
+        """
         x, y = self.proj_function(lon, lat)
         x = np.array(x)
         y = np.array(y)
@@ -943,7 +1503,23 @@ class NLLGrid(object):
         return x, y
 
     def iproject(self, x, y):
-        """Inverse project grid coordinates (x, y) into lon, lat."""
+        """
+        Convert grid coordinates to longitude and latitude.
+
+        Parameters
+        ----------
+        x : float or array_like
+            x-coordinate(s) in the grid's cartesian coordinate system.
+        y : float or array_like
+            y-coordinate(s) in the grid's cartesian coordinate system.
+
+        Returns
+        -------
+        float or ndarray
+            Longitude(s) corresponding to `x` and `y`.
+        float or ndarray
+            Latitude(s) corresponding to `x` and `y`.
+        """
         x = np.array(x)
         y = np.array(y)
         x = x * 1000.
@@ -957,16 +1533,22 @@ class NLLGrid(object):
 
     def horizontal_recenter(self):
         """
-        Move the (x, y) origin of grid cartesian system to the grid center.
+        Move the origin of the grid's cartesian coordinate system to the grid
+        center.
 
-        The absolute position in space of the grid does not change (grid
-        projection is updated).
+        This operation updates the values of `x_orig` and `y_orig`.
 
-        This operation updates `x_orig`, `y_orig`. Vertical coordinates are not
-        modified.
+        Returns
+        -------
+        None
 
-        The values of `orig_lon` and `orig_lat` are also updated if a
-        geographic transform is defined.
+        Note
+        ----
+        If a geographical projection is available, the geographical coordinates
+        of the grid center (the new (0, 0) point) are redefined.
+        The absolute position of the grid in space does not change, but the
+        grid projection is updated (`orig_lon` and `orig_lat`).
+        Vertical coordinates are not modified.
         """
         xlen_half = 0.5 * self.nx * self.dx
         ylen_half = 0.5 * self.ny * self.dy
@@ -990,11 +1572,24 @@ class NLLGrid(object):
     def horizontal_rotate(self, angle, fill_value=0.0):
         """
         Rotate the grid horizontally around its center counterclockwise by
-        the given angle (in degrees).
+        a given angle.
 
-        Values beyond the grid edge are filled using `fill_value`.
+        Parameters
+        ----------
+        angle : float
+            Angle in degrees to rotate the grid counterclockwise.
+        fill_value : float, optional
+            Value to fill with beyond the grid edge, by default 0.0.
 
-        The gird is recentered (see `recenter()` method before rotation).
+        Returns
+        -------
+        None
+
+        Note
+        ----
+        The grid is recentered using the `horizontal_recenter()` method before
+        rotation. The rotation is performed using the `scipy.ndimage.rotate()`
+        function. The `map_rot` attribute is updated by adding `angle`.
         """
         self.horizontal_recenter()
         self.array = rotate(
@@ -1005,7 +1600,19 @@ class NLLGrid(object):
         self.map_rot += angle
 
     def copy(self):
-        """Get a deep copy of the grid object."""
+        """
+        Generate a copy of the grid.
+
+        Returns
+        -------
+        Grid
+            A copy of the grid.
+
+        Note
+        ----
+        The copy is a deep copy, so that the array is copied and not just
+        referenced.
+        """
         return deepcopy(self)
 
 
