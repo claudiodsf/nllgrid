@@ -1,6 +1,18 @@
+#Extensions
 *.pyc
-nllgrid.egg-info
-RELEASE-VERSION
-build/
+*.swp
+
+#Sphinx doc build
+docs/_build
+docs/generated
+
+#Temporary files
+*~
+
+#Build products
+*.egg-info/
 dist/
+build/
+
+#IDE
 .vscode
