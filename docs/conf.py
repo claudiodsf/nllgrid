@@ -50,7 +50,7 @@ autodoc_mock_imports = ['numpy', 'scipy', 'pyproj']
 autodoc_member_order = 'bysource'
 autodoc_default_options = {
     'members': True,
-    'special-members': True,
+    'special-members': False,
     'private-members': False,
     'inherited-members': True,
     'undoc-members': True,
