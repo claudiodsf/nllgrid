@@ -217,15 +217,15 @@ class NLLGrid(object):
             self.read_buf_file()
         else:
             self.basename = None
-        self.nx = nx
-        self.ny = ny
-        self.nz = nz
-        self.x_orig = x_orig
-        self.y_orig = y_orig
-        self.z_orig = z_orig
-        self.dx = dx
-        self.dy = dy
-        self.dz = dz
+            self.nx = nx
+            self.ny = ny
+            self.nz = nz
+            self.x_orig = x_orig
+            self.y_orig = y_orig
+            self.z_orig = z_orig
+            self.dx = dx
+            self.dy = dy
+            self.dz = dz
 
     def __str__(self):
         """Return a string representation of the object."""
