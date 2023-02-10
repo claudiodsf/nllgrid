@@ -1632,7 +1632,7 @@ class NLLGrid(object):
         
         Will add three duplicated 2D layers of p_vel.array[:,0,:] to the "north" side,
         giving the new array a shape of (37, 178, 70). 
-        2D slices p_vel.array[:,174,:] to p_vel.array[:,177,:] will be identical.
+        2D slices p_vel.array[:,0,:] to p_vel.array[:,3,:] will be identical.
         """
         direction = direction.lower()
         if direction[0] not in ['n','s','e','w','u','d']:
