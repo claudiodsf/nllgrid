@@ -1616,7 +1616,7 @@ class NLLGrid(object):
             North-South is axis 1, or the second "Y" element, with north at index 0
             
             Up-Down is axis 2, the third "Z" element, with the surface being index 0
-        num_layers : int, optional
+        num_layers : int, default 1
             Number of layers to add (positive number) or subtract (negative).
             If positive, the layer values are duplicated from the outermost layer.
         
