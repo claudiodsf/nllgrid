@@ -3,21 +3,36 @@ name: Build wheel and deploy to PyPI
 on: [push, pull_request]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          pip install 'numpy>=1.0' 'scipy>=0.16' pyproj
+    - name: Test with pytest
+      run: pytest
+
   dist:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-
     - name: Build wheel and SDist
       run: pipx run build
-
     - uses: actions/upload-artifact@v2
       with:
         path: dist/*
-
     - name: Check metadata
       run: pipx run twine check dist/*
-
 
   publish:
     needs: [dist]
@@ -26,13 +41,11 @@ jobs:
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     # alternatively, to publish when a GitHub Release is created, use the following rule:
     # if: github.event_name == 'release' && github.event.action == 'published'
-
     steps:
     - uses: actions/download-artifact@v2
       with:
         name: artifact
         path: dist
-
     - uses: pypa/gh-action-pypi-publish@v1.4.2
       with:
         user: claudiodsf
