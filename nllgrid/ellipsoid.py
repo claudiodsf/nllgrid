@@ -33,14 +33,15 @@ class Ellipsoid3D():
 
     def __str__(self):
         """String representation."""
-        s = 'az1: %f\n' % self.az1
-        s += 'dip1: %f\n' % self.dip1
-        s += 'len1: %f\n' % self.len1
-        s += 'az2: %f\n' % self.az2
-        s += 'dip2: %f\n' % self.dip2
-        s += 'len2: %f\n' % self.len2
-        s += 'len3: %f' % self.len3
-        return s
+        return (
+            f'az1: {self.az1}\n'
+            f'dip1: {self.dip1}\n'
+            f'len1: {self.len1}\n'
+            f'az2: {self.az2}\n'
+            f'dip2: {self.dip2}\n'
+            f'len2: {self.len2}\n'
+            f'len3: {self.len3}'
+        )
 
 
 class Vect3D():
@@ -52,8 +53,7 @@ class Vect3D():
 
     def __str__(self):
         """String representation."""
-        s = 'x: %f y: %f z: %f' % (self.x, self.y, self.z)
-        return s
+        return f'x: {self.x} y: {self.y} z: {self.z}'
 
 
 def cross_product_3d(vect_a, vect_b):
