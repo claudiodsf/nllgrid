@@ -1631,13 +1631,13 @@ class NLLGrid(object):
 
         Example
         -------
-        If a grid "p_vel" originally has shape (37, 175, 70),
+        If a grid ``p_vel`` originally has shape ``(37, 175, 70)``,
 
-        > p_vel.nudge('north', 3)
+        >>> p_vel.nudge('north', 3)
 
-        Will add three duplicated 2D layers of p_vel.array[:, 0, :] to the
-        "north" side, giving the new array a shape of (37, 178, 70).
-        2D slices p_vel.array[:, 0, :] to p_vel.array[:, 3, :] will be
+        will add three duplicated 2D layers of ``p_vel.array[:, 0, :]`` to the
+        "north" side, giving the new array a shape of ``(37, 178, 70)``.
+        2D slices ``p_vel.array[:, 0, :]`` to ``p_vel.array[:, 3, :]`` will be
         identical.
         """
         direction = direction.lower()
