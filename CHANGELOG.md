@@ -3,7 +3,7 @@
 Python class for reading and writing
 [NonLinLoc](http://alomax.free.fr/nlloc) grid files.
 
-(c) 2015-2023 Claudio Satriano, Natalia Poiata
+(c) 2015-2023 Claudio Satriano, Natalia Poiata, Robert Pickle
 
 ## unreleased
 
@@ -11,6 +11,7 @@ Python class for reading and writing
   cartesian system to the grid center
 - `NLLGrid.horizontal_rotate()` method to rotate the grid horizontally around
   its center
+- `NLLGrid.nudge()` method to expand or contract in any direction a grid
 - Added `TRANS_MERC` and `AZIMUTHAL_EQUIDIST` projections
 - Fix projections when `map_rot != 0`
 

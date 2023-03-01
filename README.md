@@ -2,7 +2,7 @@
 
 Python class for reading and writing [NonLinLoc] grid files.
 
-(c) 2015-2023 Claudio Satriano, Natalia Poiata
+(c) 2015-2023 Claudio Satriano, Natalia Poiata, Robert Pickle
 
 [![cf-badge]][cf-link]
 [![PyPI-badge]][PyPI-link]
