@@ -230,15 +230,15 @@ class NLLGrid(object):
 
     def __str__(self):
         """Return a string representation of the object."""
-        s = f'basename: {self.basename}\n'
-        s += f'nx: {self.nx} ny: {self.ny} nz: {self.nz}\n'
-        s += (
+        s = (
+            f'basename: {self.basename}\n'
+            f'nx: {self.nx} ny: {self.ny} nz: {self.nz}\n'
             f'x_orig: {self.x_orig} y_orig: {self.y_orig} '
             f'z_orig: {self.z_orig}\n'
+            f'dx: {self.dx} dy: {self.dy} dz: {self.dz}\n'
+            f'grid_type: {self.type}\n'
+            f'float_type: {self.float_type}\n'
         )
-        s += f'dx: {self.dx} dy: {self.dy} dz: {self.dz}\n'
-        s += f'grid_type: {self.type}\n'
-        s += f'float_type: {self.float_type}\n'
         if self.station is not None:
             s += (
                 f'station: {self.station} sta_x: {self.sta_x} '
@@ -618,16 +618,17 @@ class NLLGrid(object):
             self.basename = basename
         filename = f'{self.basename}.hdr'
 
-        lines = []
-        lines.append(
+        lines = [
             f'{self.nx} {self.ny} {self.nz}  '
             f'{self.x_orig:.6f} {self.y_orig:.6f} {self.z_orig:.6f}  '
-            f'{self.dx:.6f} {self.dy:.6f} {self.dz:.6f} '
-            f'{self.type} {self.float_type}\n')
+            f'{self.dx:.6f} {self.dy:.6f} {self.dz:.6f} {self.type} '
+            f'{self.float_type}\n'
+        ]
         if self.station is not None:
             lines.append(
                 f'{self.station} '
-                f'{self.sta_x:.6f} {self.sta_y:.6f} {self.sta_z:.6f}\n')
+                f'{self.sta_x:.6f} {self.sta_y:.6f} {self.sta_z:.6f}\n'
+            )
         line = self.get_transform_line()
         if line is not None:
             lines.append(f'{line}\n')
