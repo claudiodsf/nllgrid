@@ -11,9 +11,11 @@ Reading and writing of NonLinLoc grid files.
     CeCILL Free Software License Agreement v2.1
     (http://www.cecill.info/licences.en.html)
 """
+
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import contextlib
 import math
 import numpy as np
 from scipy.ndimage import zoom, rotate
@@ -292,8 +294,8 @@ class NLLGrid(object):
     def type(self, grid_type):
         try:
             grid_type = grid_type.upper()
-        except AttributeError:
-            raise ValueError('Grid type must be a string')
+        except AttributeError as e:
+            raise ValueError('Grid type must be a string') from e
         if grid_type not in valid_grid_types:
             msg = f'Invalid grid type: {grid_type}\n'
             msg += f'Valid grid types are: {valid_grid_types}'
@@ -308,8 +310,8 @@ class NLLGrid(object):
     def float_type(self, float_type):
         try:
             float_type = float_type.upper()
-        except AttributeError:
-            raise ValueError('Float type must be a string')
+        except AttributeError as e:
+            raise ValueError('Float type must be a string') from e
         if float_type not in valid_float_types:
             msg = f'Invalid float type: {float_type}\n'
             msg += f'Valid float types are: {tuple(valid_float_types.keys())}'
@@ -325,8 +327,8 @@ class NLLGrid(object):
     def proj_name(self, pname):
         try:
             pname = pname.upper()
-        except AttributeError:
-            raise ValueError('Projection name must be a string')
+        except AttributeError as e:
+            raise ValueError('Projection name must be a string') from e
         if pname not in valid_projections:
             msg = f'Invalid projection name: {pname}\n'
             msg += f'Valid projection names: {valid_projections}'
@@ -344,8 +346,8 @@ class NLLGrid(object):
         try:
             # here we just use upper() to check if ellipsoid is a string
             ellipsoid.upper()
-        except AttributeError:
-            raise ValueError('Ellipsoid must be a string')
+        except AttributeError as e:
+            raise ValueError('Ellipsoid must be a string') from e
         if ellipsoid not in valid_ellipsoids:
             msg = f'Invalid ellipsoid: {ellipsoid}\n'
             msg += f'Valid ellipsoids: {valid_ellipsoids}'
@@ -1436,9 +1438,10 @@ class NLLGrid(object):
         if self.proj_name != 'SIMPLE':
             try:
                 ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
-            except KeyError:
+            except KeyError as e:
                 raise ValueError(
-                    f'Ellipsoid not supported: {self.proj_ellipsoid}')
+                    f'Ellipsoid not supported: {self.proj_ellipsoid}'
+                ) from e
         if self.proj_name == 'LAMBERT':
             self.__proj_function = Proj(
                 proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
@@ -1553,10 +1556,10 @@ class NLLGrid(object):
         """
         xlen_half = 0.5 * self.nx * self.dx
         ylen_half = 0.5 * self.ny * self.dy
-        # The following try/except block is to redefine the geographical
+        # The following code block is to redefine the geographical
         # coordinates of the grid center (the new (0, 0) point).
-        # Only executed if a geopgraphical projection is available.
-        try:
+        # Only executed if a geographical projection is available.
+        with contextlib.suppress(RuntimeError):
             # Find coordinates of the grid center before recentering the grid
             # (x_orig, y_orig) is the lower left point, so the grid center is
             # (x_orig + xlen_half, y_orig + y_len_half)
@@ -1565,8 +1568,6 @@ class NLLGrid(object):
             lon_half, lat_half = self.iproject(grid_center_x, grid_center_y)
             self.orig_lon = lon_half
             self.orig_lat = lat_half
-        except RuntimeError:
-            pass
         self.x_orig = -xlen_half
         self.y_orig = -ylen_half
 
