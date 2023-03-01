@@ -1599,6 +1599,117 @@ class NLLGrid(object):
         self.y_orig = -0.5 * self.ny * self.dy
         self.map_rot += angle
 
+    def nudge(self, direction, num_layers=1):
+        """
+        'Nudge' a grid's dimensions by expanding or contracting in any
+        direction, by any number of 2D layers. The output grid is also
+        recentered.
+
+        Parameters
+        ----------
+        direction : char
+            Cardinal direction to adjust, either "east", "west", "north",
+            "south", as well as "up" or "down", or simply "e", "w", "n", "s",
+            "u", "d".
+
+            West-East is axis 0, or the first "X" element of the array, with
+            east at index -1.
+
+            North-South is axis 1, or the second "Y" element, with north at
+            index 0.
+
+            Up-Down is axis 2, the third "Z" element, with the surface being
+            index 0.
+        num_layers : int, default 1
+            Number of layers to add (positive number) or subtract (negative).
+            If positive, the layer values are duplicated from the outermost
+            layer.
+
+        Returns
+        -------
+        None
+
+        Example
+        -------
+        If a grid "p_vel" originally has shape (37, 175, 70),
+
+        > p_vel.nudge('north', 3)
+
+        Will add three duplicated 2D layers of p_vel.array[:, 0, :] to the
+        "north" side, giving the new array a shape of (37, 178, 70).
+        2D slices p_vel.array[:, 0, :] to p_vel.array[:, 3, :] will be
+        identical.
+        """
+        direction = direction.lower()
+        valid_directions = [
+            'east', 'west', 'north', 'south', 'up', 'down',
+            'e', 'w', 'n', 's', 'u', 'd']
+        if direction not in valid_directions:
+            valid_directions = ', '.join(f'"{d}"' for d in valid_directions)
+            msg = f'Invalid direction "{direction}". Must be one of: '
+            msg += valid_directions
+            raise ValueError(msg)
+        if not isinstance(num_layers, int):
+            raise TypeError('num_layers must be an integer')
+        if num_layers == 0:
+            return
+        polarity = -1 if num_layers < 0 else 1
+
+        for _ in range(abs(num_layers)):
+            if direction in ['east', 'e']:
+                if polarity < 0:
+                    self.array = self.array[:-1, :, :]
+                else:
+                    layer = self.array[-1, :, :]
+                    m, n = layer.shape
+                    layer = layer.reshape(1, m, n)
+                    self.array = np.concatenate((self.array, layer), axis=0)
+            elif direction in ['west', 'w']:
+                if polarity < 0:
+                    self.array = self.array[1:, :, :]
+                else:
+                    layer = self.array[0, :, :]
+                    m, n = layer.shape
+                    layer = layer.reshape(1, m, n)
+                    self.array = np.concatenate((layer, self.array), axis=0)
+            elif direction in ['north', 'n']:
+                if polarity < 0:
+                    self.array = self.array[:, :-1, :]
+                else:
+                    layer = self.array[:, -1, :]
+                    m, n = layer.shape
+                    layer = layer.reshape(m, 1, n)
+                    self.array = np.concatenate((self.array, layer), axis=1)
+            elif direction in ['south', 's']:
+                if polarity < 0:
+                    self.array = self.array[:, 1:, :]
+                else:
+                    layer = self.array[:, 0, :]
+                    m, n = layer.shape
+                    layer = layer.reshape(m, 1, n)
+                    self.array = np.concatenate((layer, self.array), axis=1)
+            elif direction in ['up', 'u']:
+                if polarity < 0:
+                    self.array = self.array[:, :, 1:]
+                    self.z_orig += self.dz
+                else:
+                    layer = self.array[:, :, 0]
+                    m, n = layer.shape
+                    layer = layer.reshape(m, n, 1)
+                    self.array = np.concatenate((layer, self.array), axis=2)
+                    self.z_orig -= self.dz
+            elif direction in ['down', 'd']:
+                if polarity < 0:
+                    self.array = self.array[:, :, :-1]
+                else:
+                    layer = self.array[:, :, -1]
+                    m, n = layer.shape
+                    layer = layer.reshape(m, n, 1)
+                    self.array = np.concatenate((self.array, layer), axis=2)
+
+        if direction not in ['up', 'down', 'u', 'd']:
+            self.horizontal_recenter()
+
     def copy(self):
         """
         Generate a copy of the grid.
