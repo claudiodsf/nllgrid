@@ -1694,7 +1694,7 @@ class NLLGrid(object):
                     layer = layer.reshape(m, n, 1)
                     self.array = np.concatenate((layer, self.array), axis=2)
                     self.z_orig -= self.dz
-            else:  # down
+            elif direction in ['down', 'd']:
                 if polarity < 0:
                     self.array = self.array[:, :, :-1]
                 else:
