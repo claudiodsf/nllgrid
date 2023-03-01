@@ -1672,7 +1672,7 @@ class NLLGrid(object):
                     m, n = layer.shape
                     layer = layer.reshape(1, m, n)
                     self.array = np.concatenate((layer, self.array), axis=0)
-            elif direction in ['south', 's']:
+            elif direction in ['north', 'n']:
                 if polarity < 0:
                     self.array = self.array[:, :-1, :]
                 else:
@@ -1680,7 +1680,7 @@ class NLLGrid(object):
                     m, n = layer.shape
                     layer = layer.reshape(m, 1, n)
                     self.array = np.concatenate((self.array, layer), axis=1)
-            elif direction in ['north', 'n']:
+            elif direction in ['south', 's']:
                 if polarity < 0:
                     self.array = self.array[:, 1:, :]
                 else:
