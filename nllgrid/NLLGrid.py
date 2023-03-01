@@ -1278,9 +1278,8 @@ class NLLGrid(object):
             cb.update_ticks()
             if handle:
                 return ax_xy, cb
-            else:
-                plt.show()
-                return
+            plt.show()
+            return
 
         ax_xy, ax_xz, ax_yz, ax_cb = self.get_plot_axes(figure, ax_xy)
         if figure is None:
