@@ -805,9 +805,7 @@ class NLLGrid(object):
             Returns None if `self.array` is None.
         """
         ijk_max = self.get_ijk_max()
-        if ijk_max is None:
-            return None
-        return self.get_xyz(*ijk_max)
+        return None if ijk_max is None else self.get_xyz(*ijk_max)
 
     def get_xyz_min(self):
         """
@@ -820,16 +818,12 @@ class NLLGrid(object):
             Returns None if `self.array` is None.
         """
         ijk_min = self.get_ijk_min()
-        if ijk_min is None:
-            return None
-        return self.get_xyz(*ijk_min)
+        return None if ijk_min is None else self.get_xyz(*ijk_min)
 
     def get_ijk_mean(self):
         """Return the indexes (i,j,k) of the grid mean point."""
         xyz_mean = self.get_xyz_mean()
-        if xyz_mean is None:
-            return None
-        return self.get_ijk(*xyz_mean)
+        return None if xyz_mean is None else self.get_ijk(*xyz_mean)
 
     def get_xyz_mean(self):
         """
@@ -1010,14 +1004,14 @@ class NLLGrid(object):
             Tuple of x_min, x_max, y_min, y_max, z_min, z_max values
             in cartesian units (generally km).
         """
-        extent = (self.x_orig - self.dx / 2,
-                  self.x_orig + self.nx * self.dx + self.dx / 2,
-                  self.y_orig - self.dy / 2,
-                  self.y_orig + self.ny * self.dy + self.dy / 2,
-                  self.z_orig - self.dz / 2,
-                  self.z_orig + self.nz * self.dz + self.dz / 2
-                  )
-        return extent
+        return (
+            self.x_orig - self.dx / 2,
+            self.x_orig + self.nx * self.dx + self.dx / 2,
+            self.y_orig - self.dy / 2,
+            self.y_orig + self.ny * self.dy + self.dy / 2,
+            self.z_orig - self.dz / 2,
+            self.z_orig + self.nz * self.dz + self.dz / 2,
+        )
 
     def get_xy_extent(self):
         """
