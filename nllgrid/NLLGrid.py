@@ -1706,7 +1706,6 @@ class NLLGrid(object):
 
         if direction not in ['up', 'down', 'u', 'd']:
             self.horizontal_recenter()
-        return
 
     def copy(self):
         """
