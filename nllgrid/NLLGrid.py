@@ -1023,7 +1023,7 @@ class NLLGrid(object):
             Tuple of x_min, x_max, y_min, y_max values in cartesian units
             (generally km).
         """
-        return self.get_extent()[0:4]
+        return self.get_extent()[:4]
 
     def get_xz_extent(self):
         """
@@ -1035,7 +1035,7 @@ class NLLGrid(object):
             Tuple of x_min, x_max, z_min, z_max values in cartesian units
             (generally km).
         """
-        return self.get_extent()[0:2] + self.get_extent()[4:]
+        return self.get_extent()[:2] + self.get_extent()[4:]
 
     def get_zx_extent(self):
         """
@@ -1047,7 +1047,7 @@ class NLLGrid(object):
             Tuple of z_min, z_max, x_min, x_max values in cartesian units
             (generally km).
         """
-        return self.get_extent()[4:] + self.get_extent()[0:2]
+        return self.get_extent()[4:] + self.get_extent()[:2]
 
     def get_yz_extent(self):
         """
