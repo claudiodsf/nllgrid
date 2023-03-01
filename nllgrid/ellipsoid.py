@@ -110,7 +110,7 @@ def toEllipsoid3D(ax1, ax2, center, npts):
     angle = 0.0
 
     ellArray = []
-    for n in range(0, npts):
+    for _ in range(npts):
         cosang = cos(angle)
         sinang = sin(angle)
         vect = Vect3D()
