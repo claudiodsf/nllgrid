@@ -17,8 +17,9 @@ jobs:
     - name: Install dependencies
       run: |
           python -m pip install --upgrade pip
-          pip install pytest
-          pip install 'numpy>=1.0' 'scipy>=0.16' pyproj
+          pip install pip-tools pytest
+          pip-compile -o requirements.txt setup.py
+          pip install -r requirements.txt
     - name: Test with pytest
       run: pytest
 
