@@ -1488,15 +1488,9 @@ class NLLGrid(object):
         y = y1
         # Try to return the same type of lon, lat
         if not isinstance(lon, np.ndarray):
-            if isinstance(lon, Iterable):
-                x = type(lon)(x)
-            else:
-                x = float(x)
+            x = type(lon)(x) if isinstance(lon, Iterable) else float(x)
         if not isinstance(lat, np.ndarray):
-            if isinstance(lat, Iterable):
-                y = type(lat)(y)
-            else:
-                y = float(y)
+            y = type(lat)(y) if isinstance(lat, Iterable) else float(y)
         return x, y
 
     def iproject(self, x, y):
