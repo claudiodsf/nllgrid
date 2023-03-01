@@ -229,17 +229,21 @@ class NLLGrid(object):
 
     def __str__(self):
         """Return a string representation of the object."""
-        s = 'basename: {}\n'.format(self.basename)
-        s += 'nx: {} ny: {} nz: {}\n'.format(self.nx, self.ny, self.nz)
-        s += 'x_orig: {} y_orig: {} z_orig: {}\n'.format(
-            self.x_orig, self.y_orig, self.z_orig)
-        s += 'dx: {} dy: {} dz: {}\n'.format(self.dx, self.dy, self.dz)
-        s += 'grid_type: {}\n'.format(self.type)
-        s += 'float_type: {}\n'.format(self.float_type)
+        s = f'basename: {self.basename}\n'
+        s += f'nx: {self.nx} ny: {self.ny} nz: {self.nz}\n'
+        s += (
+            f'x_orig: {self.x_orig} y_orig: {self.y_orig} '
+            f'z_orig: {self.z_orig}\n'
+        )
+        s += f'dx: {self.dx} dy: {self.dy} dz: {self.dz}\n'
+        s += f'grid_type: {self.type}\n'
+        s += f'float_type: {self.float_type}\n'
         if self.station is not None:
-            s += 'station: {} sta_x: {} sta_y: {} sta_z: {}\n'.format(
-                self.station, self.sta_x, self.sta_y, self.sta_z)
-        s += 'transform: {}'.format(self.get_transform_line())
+            s += (
+                f'station: {self.station} sta_x: {self.sta_x} '
+                f'sta_y: {self.sta_y} sta_z: {self.sta_z}\n'
+            )
+        s += f'transform: {self.get_transform_line()}'
         return s
 
     def _repr_pretty_(self, p, cycle):
@@ -290,8 +294,8 @@ class NLLGrid(object):
         except AttributeError:
             raise ValueError('Grid type must be a string')
         if grid_type not in valid_grid_types:
-            msg = 'Invalid grid type: {}\n'.format(grid_type)
-            msg += 'Valid grid types are: {}'.format(valid_grid_types)
+            msg = f'Invalid grid type: {grid_type}\n'
+            msg += f'Valid grid types are: {valid_grid_types}'
             raise ValueError(msg)
         self.__type = grid_type
 
@@ -306,9 +310,8 @@ class NLLGrid(object):
         except AttributeError:
             raise ValueError('Float type must be a string')
         if float_type not in valid_float_types:
-            msg = 'Invalid float type: {}\n'.format(float_type)
-            msg += 'Valid float types are: {}'.format(
-                tuple(valid_float_types.keys()))
+            msg = f'Invalid float type: {float_type}\n'
+            msg += f'Valid float types are: {tuple(valid_float_types.keys())}'
             raise ValueError(msg)
         self.__np_float_type = valid_float_types[float_type]
         self.__float_type = float_type
@@ -324,8 +327,8 @@ class NLLGrid(object):
         except AttributeError:
             raise ValueError('Projection name must be a string')
         if pname not in valid_projections:
-            msg = 'Invalid projection name: {}\n'.format(pname)
-            msg += 'Valid projection names: {}'.format(valid_projections)
+            msg = f'Invalid projection name: {pname}\n'
+            msg += f'Valid projection names: {valid_projections}'
             raise ValueError(msg)
         self.__proj_name = pname
         # Reset proj_function
@@ -343,8 +346,8 @@ class NLLGrid(object):
         except AttributeError:
             raise ValueError('Ellipsoid must be a string')
         if ellipsoid not in valid_ellipsoids:
-            msg = 'Invalid ellipsoid: {}\n'.format(ellipsoid)
-            msg += 'Valid ellipsoids: {}'.format(valid_ellipsoids)
+            msg = f'Invalid ellipsoid: {ellipsoid}\n'
+            msg += f'Valid ellipsoids: {valid_ellipsoids}'
             raise ValueError(msg)
         self.__proj_ellipsoid = ellipsoid
         # Reset proj_function
@@ -462,7 +465,7 @@ class NLLGrid(object):
         """
         if basename is not None:
             self.basename = self.remove_extension(basename)
-        filename = self.basename + '.hdr'
+        filename = f'{self.basename}.hdr'
 
         # read header file
         with open(filename, 'r') as fp:
@@ -564,7 +567,7 @@ class NLLGrid(object):
         """
         if basename is not None:
             self.basename = self.remove_extension(basename)
-        filename = self.basename + '.buf'
+        filename = f'{self.basename}.buf'
 
         with open(filename, 'rb') as fp:
             nitems = self.nx * self.ny * self.nz
@@ -572,7 +575,7 @@ class NLLGrid(object):
             if len(buf) < nitems:
                 raise ValueError(
                     'Not enough data values in buf file! '
-                    '({} < {})'.format(len(buf), nitems))
+                    f'({len(buf)} < {nitems})')
         if self.type in ['ANGLE', 'ANGLE2D']:
             take_off_angles = (TakeOffAngles * len(buf))()
             for _i, _val in enumerate(buf):
@@ -612,21 +615,21 @@ class NLLGrid(object):
         """
         if basename is not None:
             self.basename = basename
-        filename = self.basename + '.hdr'
+        filename = f'{self.basename}.hdr'
 
         lines = []
-        lines.append('{} {} {}  {:.6f} {:.6f} {:.6f}  '
-                     '{:.6f} {:.6f} {:.6f} {} {}\n'.format(
-                        self.nx, self.ny, self.nz,
-                        self.x_orig, self.y_orig, self.z_orig,
-                        self.dx, self.dy, self.dz,
-                        self.type, self.float_type))
+        lines.append(
+            f'{self.nx} {self.ny} {self.nz}  '
+            f'{self.x_orig:.6f} {self.y_orig:.6f} {self.z_orig:.6f}  '
+            f'{self.dx:.6f} {self.dy:.6f} {self.dz:.6f} '
+            f'{self.type} {self.float_type}\n')
         if self.station is not None:
-            lines.append('{} {:.6f} {:.6f} {:.6f}\n'.format(
-                self.station, self.sta_x, self.sta_y, self.sta_z))
+            lines.append(
+                f'{self.station} '
+                f'{self.sta_x:.6f} {self.sta_y:.6f} {self.sta_z:.6f}\n')
         line = self.get_transform_line()
         if line is not None:
-            lines.append('{}\n'.format(line))
+            lines.append(f'{line}\n')
 
         with open(filename, 'w') as fp:
             for line in lines:
@@ -657,14 +660,12 @@ class NLLGrid(object):
         """
         if self.type in ['ANGLE', 'ANGLE2D']:
             raise NotImplementedError(
-                'Writing buf file not implemented for {} grid.'.format(
-                    self.type
-                ))
+                f'Writing buf file not implemented for {self.type} grid.')
         if self.array is None:
             return
         if basename is not None:
             self.basename = basename
-        filename = self.basename + '.buf'
+        filename = f'{self.basename}.buf'
         with open(filename, 'wb') as fp:
             self.array.astype(self.__np_float_type).tofile(fp)
 
@@ -680,31 +681,32 @@ class NLLGrid(object):
         if self.proj_name == 'NONE':
             return 'TRANSFORM  NONE'
         if self.proj_name == 'SIMPLE':
-            line = 'TRANSFORM  SIMPLE  '
-            line += 'LatOrig {:.6f}  LongOrig {:.6f}  RotCW {:.6f}'.format(
-                self.orig_lat, self.orig_lon, self.map_rot)
-            return line
+            return (
+                'TRANSFORM  SIMPLE  '
+                f'LatOrig {self.orig_lat:.6f}  LongOrig {self.orig_lon:.6f}  '
+                f'RotCW {self.map_rot:.6f}'
+            )
         if self.proj_name == 'LAMBERT':
-            line = 'TRANSFORM  LAMBERT RefEllipsoid {}  '.format(
-                self.proj_ellipsoid)
-            line += 'LatOrig {:.6f}  LongOrig {:.6f}  '.format(
-                self.orig_lat, self.orig_lon)
-            line += 'FirstStdParal {:.6f}  SecondStdParal {:.6f}  '.format(
-                self.first_std_paral, self.second_std_paral)
-            line += 'RotCW {:.6f}'.format(self.map_rot)
-            return line
+            return (
+                f'TRANSFORM  LAMBERT RefEllipsoid {self.proj_ellipsoid}  '
+                f'LatOrig {self.orig_lat:.6f}  LongOrig {self.orig_lon:.6f}  '
+                f'FirstStdParal {self.first_std_paral:.6f}  '
+                f'SecondStdParal {self.second_std_paral:.6f}  '
+                f'RotCW {self.map_rot:.6f}'
+            )
         if self.proj_name == 'TRANS_MERC':
-            line = 'TRANSFORM  TRANS_MERC RefEllipsoid {}  '.format(
-                self.proj_ellipsoid)
-            line += 'LatOrig {:.6f}  LongOrig {:.6f}  RotCW {:.6f}'.format(
-                self.orig_lat, self.orig_lon, self.map_rot)
-            return line
+            return (
+                f'TRANSFORM  TRANS_MERC RefEllipsoid {self.proj_ellipsoid}  '
+                f'LatOrig {self.orig_lat:.6f}  LongOrig {self.orig_lon:.6f}  '
+                f'RotCW {self.map_rot:.6f}'
+            )
         if self.proj_name == 'AZIMUTHAL_EQUIDIST':
-            line = 'TRANSFORM  AZIMUTHAL_EQUIDIST RefEllipsoid {}  '.format(
-                self.proj_ellipsoid)
-            line += 'LatOrig {:.6f}  LongOrig {:.6f}  RotCW {:.6f}'.format(
-                self.orig_lat, self.orig_lon, self.map_rot)
-            return line
+            return (
+                'TRANSFORM  AZIMUTHAL_EQUIDIST '
+                f'RefEllipsoid {self.proj_ellipsoid}  '
+                f'LatOrig {self.orig_lat:.6f}  LongOrig {self.orig_lon:.6f}  '
+                f'RotCW {self.map_rot:.6f}'
+            )
 
     def get_xyz(self, i, j, k):
         """
@@ -971,9 +973,7 @@ class NLLGrid(object):
         if array is not None:
             if self.type in ['ANGLE', 'ANGLE2D']:
                 raise NotImplementedError(
-                    '"array" argument not implemented for {} grid.'.format(
-                        self.type
-                    ))
+                    f'"array" argument not implemented for {self.type} grid.')
         else:
             array = self.array
         # Special case of 2D grids: y is epicentral distance
@@ -986,7 +986,7 @@ class NLLGrid(object):
         min_x, max_x, min_y, max_y, min_z, max_z = self.get_extent()
         if not (min_x <= x <= max_x and min_y <= y <= max_y and
                 min_z <= z <= max_z):
-            raise ValueError('point {} outside the grid.'.format((x, y, z)))
+            raise ValueError(f'point {(x, y, z)} outside the grid.')
         i, j, k = self.get_ijk(x, y, z)
         if self.type in ['ANGLE', 'ANGLE2D']:
             azimuth = self.azimuth[i, j, k]
@@ -1115,7 +1115,7 @@ class NLLGrid(object):
         """
         if self.type in ['ANGLE', 'ANGLE2D']:
             raise NotImplementedError(
-                'Resample not implemented for {} grid.'.format(self.type))
+                f'Resample not implemented for {self.type} grid.')
         zoom_x = self.dx / dx
         zoom_y = self.dy / dy
         zoom_z = self.dz / dz
@@ -1436,7 +1436,7 @@ class NLLGrid(object):
                 ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
             except KeyError:
                 raise ValueError(
-                    'Ellipsoid not supported: {}'.format(self.proj_ellipsoid))
+                    f'Ellipsoid not supported: {self.proj_ellipsoid}')
         if self.proj_name == 'LAMBERT':
             self.__proj_function = Proj(
                 proj='lcc', lat_0=self.orig_lat, lon_0=self.orig_lon,
@@ -1454,8 +1454,7 @@ class NLLGrid(object):
             self.__proj_function = Proj(
                 proj='eqc', lat_0=self.orig_lat, lon_0=self.orig_lon)
         else:
-            raise ValueError('Projection not supported: {}'.format(
-                self.proj_name))
+            raise ValueError(f'Projection not supported: {self.proj_name}')
         return self.__proj_function
 
     def project(self, lon, lat):
@@ -1818,7 +1817,7 @@ def main():
     grd_rot = grd.copy()
     rot_angle = 10
     grd_rot.horizontal_rotate(rot_angle)
-    grd_rot.basename = 'rotated_{}'.format(rot_angle)
+    grd_rot.basename = f'rotated_{rot_angle}'
     print(grd_rot, '\n')
     axes, cb = grd_rot.plot(vmin=0, vmax=3, handle=True)
     line_xy = grd_rot.project(line_lonlat[0], line_lonlat[1])
