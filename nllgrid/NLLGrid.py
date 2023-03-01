@@ -1646,9 +1646,7 @@ class NLLGrid(object):
             return
         if num_layers == 0:
             return
-        polarity = 1
-        if num_layers < 0:
-            polarity = -1
+        polarity = -1 if num_layers < 0 else 1
         num_layers = int(np.round(num_layers))
 
         for _ in range(abs(num_layers)):
