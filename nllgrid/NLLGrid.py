@@ -1641,11 +1641,13 @@ class NLLGrid(object):
         identical.
         """
         direction = direction.lower()
-        if not direction or direction[0] not in ['e', 'w', 'n', 's', 'u', 'd']:
-            msg = (
-                'Direction must be: "east", "west", "north", "south", "up", '
-                'or "down", or simply: "e", "w", "n", "s", "u", or "d".'
-            )
+        valid_directions = [
+            'east', 'west', 'north', 'south', 'up', 'down',
+            'e', 'w', 'n', 's', 'u', 'd']
+        if direction not in valid_directions:
+            valid_directions = ', '.join(f'"{d}"' for d in valid_directions)
+            msg = f'Invalid direction "{direction}". Must be one of: '
+            msg += valid_directions
             raise ValueError(msg)
         if num_layers == 0:
             return
