@@ -858,7 +858,7 @@ class NLLGrid(object):
 
         Returns
         -------
-        cov : ndarray, shape (3,3)
+        cov : numpy.ndarray, shape (3,3)
             The covariance matrix of the grid with respect to the mean point
             in (x,y,z). If the grid is None, returns None.
         """
@@ -1515,9 +1515,9 @@ class NLLGrid(object):
 
         Returns
         -------
-        float or ndarray
+        float or numpy.ndarray
             Longitude(s) corresponding to `x` and `y`.
-        float or ndarray
+        float or numpy.ndarray
             Latitude(s) corresponding to `x` and `y`.
         """
         x = np.array(x)
