@@ -1649,10 +1649,11 @@ class NLLGrid(object):
             msg = f'Invalid direction "{direction}". Must be one of: '
             msg += valid_directions
             raise ValueError(msg)
+        if not isinstance(num_layers, int):
+            raise TypeError('num_layers must be an integer')
         if num_layers == 0:
             return
         polarity = -1 if num_layers < 0 else 1
-        num_layers = int(np.round(num_layers))
 
         for _ in range(abs(num_layers)):
             if direction in ['east', 'e']:
