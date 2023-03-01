@@ -1609,8 +1609,8 @@ class NLLGrid(object):
         ----------
         direction : char
             Cardinal direction to adjust, either "east", "west", "north",
-            "south", as well as "up" or "down", or simply "u", "d", "e", "w",
-            "n", "s".
+            "south", as well as "up" or "down", or simply "e", "w", "n", "s",
+            "u", "d".
 
             West-East is axis 0, or the first "X" element of the array, with
             east at index -1.
@@ -1641,9 +1641,12 @@ class NLLGrid(object):
         identical.
         """
         direction = direction.lower()
-        if direction[0] not in ['n', 's', 'e', 'w', 'u', 'd']:
-            print("direction must be: up, down, east, west, north, or south")
-            return
+        if not direction or direction[0] not in ['e', 'w', 'n', 's', 'u', 'd']:
+            msg = (
+                'Direction must be: "east", "west", "north", "south", "up", '
+                'or "down", or simply: "e", "w", "n", "s", "u", or "d".'
+            )
+            raise ValueError(msg)
         if num_layers == 0:
             return
         polarity = -1 if num_layers < 0 else 1
