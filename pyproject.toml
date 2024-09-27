@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=64", "versioneer[toml]"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nllgrid"
+dynamic = ["version", "readme"]
+authors = [
+    { name = "Claudio Satriano", email = "satriano@ipgp.fr" },
+]
+description = "Python class for reading and writing NonLinLoc grid files"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: CEA CNRS Inria Logiciel Libre License, version 2.1 (CeCILL-2.1)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "numpy>=1.0",
+    "scipy>=0.16",
+    "pyproj",
+]
+
+[project.license]
+text = "CeCILL Free Software License Agreement, Version 2.1"
+
+[project.urls]
+Homepage = "https://github.com/claudiodsf/nllgrid"
+
+[tool.setuptools]
+packages = [
+    "nllgrid",
+]
+include-package-data = true
+platforms = [
+    "OS",
+    "Independent",
+]
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "nllgrid/_version.py"
+versionfile_build = "nllgrid/_version.py"
+tag_prefix = "v"
+parentdir_prefix = "nllgrid-"
