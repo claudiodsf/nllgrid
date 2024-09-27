@@ -32,11 +32,15 @@ setup(
                 'License, version 2.1 (CeCILL-2.1)',
             'Operating System :: OS Independent',
             'Programming Language :: Python',
-            'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 2.7',
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.5',
+            'Programming Language :: Python :: 3.7',
+            'Programming Language :: Python :: 3.8',
+            'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.10',
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.12',
             'Topic :: Scientific/Engineering',
             'Topic :: Scientific/Engineering :: Physics'],
+    python_requires='>=3.7',
     install_requires=['numpy>=1.0', 'scipy>=0.16', 'pyproj']
     )
