@@ -1220,8 +1220,10 @@ class NLLGrid(object):
 
         Parameters
         ----------
-        slice_index : int, optional
-            Index of the slice to plot. The default is None.
+        slice_index : int or str, optional
+            Index of the slice to plot. Use 'max' or 'min' to plot the slice
+            at the grid's maximum or minimum value, respectively.
+            The default is None.
         handle : bool, optional
             Whether to return the handle of the plot. The default is False.
         figure : object, optional
