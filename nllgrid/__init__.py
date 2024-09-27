@@ -10,7 +10,6 @@ Reading and writing of NonLinLoc grid files.
     CeCILL Free Software License Agreement v2.1
     (http://www.cecill.info/licences.en.html)
 """
-from .NLLGrid import NLLGrid  #NOQA
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+from .NLLGrid import NLLGrid  # noqa
+from . import _version
+__version__ = _version.get_versions()['version']
