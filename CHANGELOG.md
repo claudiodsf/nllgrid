@@ -5,7 +5,7 @@ Python class for reading and writing
 
 (c) 2015-2024 Claudio Satriano, Natalia Poiata, Robert Pickle
 
-## unreleased
+## v1.5 - 2024-09-30
 
 - `NLLGrid.horizontal_recenter()` method to move the (x, y) origin of grid
   cartesian system to the grid center
