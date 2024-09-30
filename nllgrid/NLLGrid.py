@@ -1223,7 +1223,7 @@ class NLLGrid(object):
         slice_index : int or str, optional
             Index of the slice to plot. Use 'max' or 'min' to plot the slice
             at the grid's maximum or minimum value, respectively.
-            The default is None.
+            Leave it to None to use the grid's middle slice.
         handle : bool, optional
             Whether to return the handle of the plot. The default is False.
         figure : object, optional
@@ -1231,15 +1231,19 @@ class NLLGrid(object):
         ax_xy : object, optional
             Matplotlib axis object for x-y projection. The default is None.
         vmin : float, optional
-            Lower limit for the color scale. The default is None.
+            Lower limit for the color scale.
+            Leave it to None to use the minimum value of the grid.
         vmax : float, optional
-            Upper limit for the color scale. The default is None.
+            Upper limit for the color scale.
+            Leave it to None to use the maximum value of the grid.
         cmap : object, optional
-            Colormap to use for the plot. The default is None.
+            Colormap to use for the plot.
+            Leave it to None to use the default Matplotlib colormap.
         line_color : str, optional
             Color of the grid lines. The default is 'white'.
         array : array_like, optional
-            Array to plot. The default is None.
+            Array to plot.
+            Leave it to None to use the grid's `array` attribute.
 
         Returns
         -------
