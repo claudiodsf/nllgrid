@@ -5,6 +5,10 @@ Python class for reading and writing
 
 (c) 2015-2024 Claudio Satriano, Natalia Poiata, Robert Pickle
 
+## v1.5.1 - 2024-09-30
+
+- Fix for PyPI publishing
+
 ## v1.5 - 2024-09-30
 
 - `NLLGrid.horizontal_recenter()` method to move the (x, y) origin of grid
