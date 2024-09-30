@@ -4,6 +4,7 @@ Python class for reading and writing [NonLinLoc] grid files.
 
 (c) 2015-2024 Claudio Satriano, Natalia Poiata, Robert Pickle
 
+[![changelog-badge]][changelog-link]
 [![cf-badge]][cf-link]
 [![PyPI-badge]][PyPI-link]
 [![license-badge]][license-link]
@@ -47,7 +48,7 @@ You don't need to uncompress the release files yourself.
 ### From nllgrid GitHub repository
 
 If you need a recent feature that is not in the latest release (see the
-`unreleased` section in [CHANGELOG]), you want to use the source code from
+`unreleased` section in [CHANGELOG][changelog-link]), you want to use the source code from
 the [nllgrid GitHub repository][github-repo].
 
 For that, clone the project:
@@ -164,6 +165,8 @@ Note that if you want to use your grid as input for NonLinLoc
 array has to be transformed into slowness (in s/km) and multiplied
 by the grid step (in km).
 
+[changelog-badge]: https://img.shields.io/badge/Changelog-136CB6.svg
+[changelog-link]: CHANGELOG.md
 [cf-badge]: http://img.shields.io/conda/vn/conda-forge/nllgrid.svg
 [cf-link]: https://anaconda.org/conda-forge/nllgrid
 [PyPI-badge]: http://img.shields.io/pypi/v/nllgrid.svg
@@ -177,4 +180,3 @@ by the grid step (in km).
 [Anaconda]: https://www.anaconda.com/products/individual
 [releases-link]: https://github.com/claudiodsf/nllgrid/releases
 [github-repo]: https://github.com/claudiodsf/nllgrid
-[CHANGELOG]: CHANGELOG.md
