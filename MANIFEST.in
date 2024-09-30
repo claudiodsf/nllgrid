@@ -2,5 +2,5 @@ include README.md
 include CHANGELOG.md
 include CONTRIBUTORS.txt
 include LICENSE.txt
-include versioneer.py
-include nllgrid/_version.py
+include tests
+include tests/data/*
