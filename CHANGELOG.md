@@ -5,6 +5,10 @@ Python class for reading and writing
 
 (c) 2015-2024 Claudio Satriano, Natalia Poiata, Robert Pickle
 
+## v1.5.2 - 2024-09-30
+
+- Fix for missing test data in PyPI package
+
 ## v1.5.1 - 2024-09-30
 
 - Fix for PyPI publishing
