@@ -5,6 +5,11 @@ Python class for reading and writing
 
 (c) 2015-2024 Claudio Satriano, Natalia Poiata, Robert Pickle
 
+## v1.5.3 - 2024-10-01
+
+- Fix bug preventing writing a newly created grid to a file, when the grid
+  `float_type` was not explicitly set
+
 ## v1.5.2 - 2024-09-30
 
 - Fix for missing test data in PyPI package
