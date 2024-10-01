@@ -52,31 +52,7 @@ class TestNLLGrid(unittest.TestCase):
         Test writing a NLL grid file (hdr and buf).
         """
         grd = NLLGrid(self.grd_bname)
-        # write to a temporary file using tempfile module
-        with tempfile.NamedTemporaryFile() as tmp:
-            grd.write_hdr_file(tmp.name)
-            grd.write_buf_file(tmp.name)
-            grd2 = NLLGrid(tmp.name)
-        self.assertEqual(grd2.nx, grd.nx)
-        self.assertEqual(grd2.ny, grd.ny)
-        self.assertEqual(grd2.nz, grd.nz)
-        self.assertEqual(grd2.x_orig, grd.x_orig)
-        self.assertEqual(grd2.y_orig, grd.y_orig)
-        self.assertEqual(grd2.z_orig, grd.z_orig)
-        self.assertEqual(grd2.dx, grd.dx)
-        self.assertEqual(grd2.dy, grd.dy)
-        self.assertEqual(grd2.dz, grd.dz)
-        self.assertEqual(grd2.type, grd.type)
-        self.assertEqual(grd2.float_type, grd.float_type)
-        self.assertEqual(grd2.proj_name, grd.proj_name)
-        self.assertEqual(grd2.proj_ellipsoid, grd.proj_ellipsoid)
-        self.assertEqual(grd2.orig_lon, grd.orig_lon)
-        self.assertEqual(grd2.orig_lat, grd.orig_lat)
-        self.assertEqual(grd2.first_std_paral, grd.first_std_paral)
-        self.assertEqual(grd2.second_std_paral, grd.second_std_paral)
-        self.assertEqual(grd2.map_rot, grd.map_rot)
-        self.assertEqual(grd2.array.shape, grd.array.shape)
-        self.assertEqual(grd2.array.dtype, grd.array.dtype)
+        grd2 = self.write_grid_to_disk_and_check(grd)
         self.assertTrue((grd2.array == grd.array).all())
 
     def test_create(self):
@@ -98,31 +74,38 @@ class TestNLLGrid(unittest.TestCase):
         grd.first_std_paral = 38.
         grd.second_std_paral = 42.
         grd.proj_ellipsoid = 'WGS-84'
+        grd2 = self.write_grid_to_disk_and_check(grd)
+        self.assertAlmostEqual(grd2.array.sum(), grd.array.sum(), places=5)
+
+    def write_grid_to_disk_and_check(self, grd):
+        """
+        Write a grid to disk and read it back to check if it is the same.
+        """
         with tempfile.NamedTemporaryFile() as tmp:
             grd.write_hdr_file(tmp.name)
             grd.write_buf_file(tmp.name)
-            grd2 = NLLGrid(tmp.name)
-        self.assertEqual(grd2.nx, grd.nx)
-        self.assertEqual(grd2.ny, grd.ny)
-        self.assertEqual(grd2.nz, grd.nz)
-        self.assertEqual(grd2.x_orig, grd.x_orig)
-        self.assertEqual(grd2.y_orig, grd.y_orig)
-        self.assertEqual(grd2.z_orig, grd.z_orig)
-        self.assertEqual(grd2.dx, grd.dx)
-        self.assertEqual(grd2.dy, grd.dy)
-        self.assertEqual(grd2.dz, grd.dz)
-        self.assertEqual(grd2.type, grd.type)
-        self.assertEqual(grd2.float_type, grd.float_type)
-        self.assertEqual(grd2.proj_name, grd.proj_name)
-        self.assertEqual(grd2.proj_ellipsoid, grd.proj_ellipsoid)
-        self.assertEqual(grd2.orig_lon, grd.orig_lon)
-        self.assertEqual(grd2.orig_lat, grd.orig_lat)
-        self.assertEqual(grd2.first_std_paral, grd.first_std_paral)
-        self.assertEqual(grd2.second_std_paral, grd.second_std_paral)
-        self.assertEqual(grd2.map_rot, grd.map_rot)
-        self.assertEqual(grd2.array.shape, grd.array.shape)
-        self.assertEqual(grd2.array.dtype, grd.array.dtype)
-        self.assertAlmostEqual(grd2.array.sum(), grd.array.sum(), places=5)
+            result = NLLGrid(tmp.name)
+        self.assertEqual(result.nx, grd.nx)
+        self.assertEqual(result.ny, grd.ny)
+        self.assertEqual(result.nz, grd.nz)
+        self.assertEqual(result.x_orig, grd.x_orig)
+        self.assertEqual(result.y_orig, grd.y_orig)
+        self.assertEqual(result.z_orig, grd.z_orig)
+        self.assertEqual(result.dx, grd.dx)
+        self.assertEqual(result.dy, grd.dy)
+        self.assertEqual(result.dz, grd.dz)
+        self.assertEqual(result.type, grd.type)
+        self.assertEqual(result.float_type, grd.float_type)
+        self.assertEqual(result.proj_name, grd.proj_name)
+        self.assertEqual(result.proj_ellipsoid, grd.proj_ellipsoid)
+        self.assertEqual(result.orig_lon, grd.orig_lon)
+        self.assertEqual(result.orig_lat, grd.orig_lat)
+        self.assertEqual(result.first_std_paral, grd.first_std_paral)
+        self.assertEqual(result.second_std_paral, grd.second_std_paral)
+        self.assertEqual(result.map_rot, grd.map_rot)
+        self.assertEqual(result.array.shape, grd.array.shape)
+        self.assertEqual(result.array.dtype, grd.array.dtype)
+        return result
 
     def test_nudge(self):
         """Test nudging a grid."""
