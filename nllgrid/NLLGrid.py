@@ -167,6 +167,7 @@ class NLLGrid(object):
     #: Datatype for floating point numbers (FLOAT or DOUBLE)
     float_type = 'FLOAT'
     __float_type = 'FLOAT'
+    __np_float_type = valid_float_types[__float_type]
     #: Longitude of the grid origin
     orig_lon = None
     __orig_lon = None
