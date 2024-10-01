@@ -79,6 +79,51 @@ class TestNLLGrid(unittest.TestCase):
         self.assertEqual(grd2.array.dtype, grd.array.dtype)
         self.assertTrue((grd2.array == grd.array).all())
 
+    def test_create(self):
+        """
+        Test creating a NLL grid file (hdr and buf) and writing it.
+        """
+        grd = NLLGrid()
+        grd.array = np.random.rand(10, 20, 30).astype(np.float32)
+        grd.dx = 0.5
+        grd.dy = 0.5
+        grd.dz = 0.5
+        grd.x_orig = -10.
+        grd.y_orig = -20.
+        grd.z_orig = -1.
+        grd.type = 'VELOCITY'
+        grd.orig_lat = 40.63
+        grd.orig_lon = 15.80
+        grd.proj_name = 'LAMBERT'
+        grd.first_std_paral = 38.
+        grd.second_std_paral = 42.
+        grd.proj_ellipsoid = 'WGS-84'
+        with tempfile.NamedTemporaryFile() as tmp:
+            grd.write_hdr_file(tmp.name)
+            grd.write_buf_file(tmp.name)
+            grd2 = NLLGrid(tmp.name)
+        self.assertEqual(grd2.nx, grd.nx)
+        self.assertEqual(grd2.ny, grd.ny)
+        self.assertEqual(grd2.nz, grd.nz)
+        self.assertEqual(grd2.x_orig, grd.x_orig)
+        self.assertEqual(grd2.y_orig, grd.y_orig)
+        self.assertEqual(grd2.z_orig, grd.z_orig)
+        self.assertEqual(grd2.dx, grd.dx)
+        self.assertEqual(grd2.dy, grd.dy)
+        self.assertEqual(grd2.dz, grd.dz)
+        self.assertEqual(grd2.type, grd.type)
+        self.assertEqual(grd2.float_type, grd.float_type)
+        self.assertEqual(grd2.proj_name, grd.proj_name)
+        self.assertEqual(grd2.proj_ellipsoid, grd.proj_ellipsoid)
+        self.assertEqual(grd2.orig_lon, grd.orig_lon)
+        self.assertEqual(grd2.orig_lat, grd.orig_lat)
+        self.assertEqual(grd2.first_std_paral, grd.first_std_paral)
+        self.assertEqual(grd2.second_std_paral, grd.second_std_paral)
+        self.assertEqual(grd2.map_rot, grd.map_rot)
+        self.assertEqual(grd2.array.shape, grd.array.shape)
+        self.assertEqual(grd2.array.dtype, grd.array.dtype)
+        self.assertAlmostEqual(grd2.array.sum(), grd.array.sum(), places=5)
+
     def test_nudge(self):
         """Test nudging a grid."""
         grd = NLLGrid(self.grd_bname)
