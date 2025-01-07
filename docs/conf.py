@@ -25,7 +25,7 @@ __version__ = get_versions()['version']
 # -- Project information -----------------------------------------------------
 
 project = 'NLLGrid'
-copyright = '2015-2024, Claudio Satriano'
+copyright = '2015-2025, Claudio Satriano'
 author = 'Claudio Satriano'
 release = __version__
 version = __version__

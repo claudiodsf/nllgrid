@@ -4,7 +4,7 @@
 Reading and writing of NonLinLoc grid files.
 
 :copyright:
-    2013-2024 Claudio Satriano <satriano@ipgp.fr>,
+    2013-2025 Claudio Satriano <satriano@ipgp.fr>,
               Natalia Poiata <poiata@ipgp.fr>,
               Robert Pickle <rpickle@gmail.com>
 :license:
