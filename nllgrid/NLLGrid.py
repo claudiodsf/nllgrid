@@ -11,21 +11,14 @@ Reading and writing of NonLinLoc grid files.
     CeCILL Free Software License Agreement v2.1
     (http://www.cecill.info/licences.en.html)
 """
-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import contextlib
 import math
-import numpy as np
-from scipy.ndimage import zoom, rotate
 from ctypes import Union, c_float, c_ushort
 from copy import deepcopy
+from collections.abc import Iterable
+import numpy as np
+from scipy.ndimage import zoom, rotate
 from pyproj import Proj
-try:
-    from collections.abc import Iterable
-except ImportError:
-    from collections import Iterable
 
 
 valid_grid_types = (
