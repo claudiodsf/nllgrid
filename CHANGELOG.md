@@ -5,7 +5,7 @@ Python class for reading and writing
 
 (c) 2015-2025 Claudio Satriano, Natalia Poiata, Robert Pickle
 
-## Unreleased
+## v1.6 - 2025-04-15
 
 - License changed to GPLv3
 - Minimum Python version: 3.8
