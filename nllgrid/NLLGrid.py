@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-# SPDX-License-Identifier: CECILL-2.1
+# SPDX-License-Identifier: GPL-3.0-or-later
 """
 Reading and writing of NonLinLoc grid files.
 
@@ -8,8 +8,8 @@ Reading and writing of NonLinLoc grid files.
               Natalia Poiata <poiata@ipgp.fr>,
               Robert Pickle <rpickle@gmail.com>
 :license:
-    CeCILL Free Software License Agreement v2.1
-    (http://www.cecill.info/licences.en.html)
+    GNU General Public License v3.0 or later
+    (https://www.gnu.org/licenses/gpl-3.0-standalone.html)
 """
 import contextlib
 import math

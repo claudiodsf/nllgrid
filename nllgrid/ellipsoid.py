@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-# SPDX-License-Identifier: CECILL-2.1
+# SPDX-License-Identifier: GPL-3.0-or-later
 """
 Python porting of c-code from matrix_statistics.c.
 
@@ -8,8 +8,8 @@ Part of the NonLinLoc package, written by Anthony Lomax.
 :copyright:
     2013-2025 Claudio Satriano <satriano@ipgp.fr>
 :license:
-    CeCILL Free Software License Agreement v2.1
-    (http://www.cecill.info/licences.en.html)
+    GNU General Public License v3.0 or later
+    (https://www.gnu.org/licenses/gpl-3.0-standalone.html)
 """
 from math import pi, cos, sin
 

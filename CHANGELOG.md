@@ -7,6 +7,7 @@ Python class for reading and writing
 
 ## Unreleased
 
+- License changed to GPLv3
 - Minimum Python version: 3.8
 - Added support for Python 3.13
 - Fix for `NLLGrid.get_value()` producing an error when using 2d model grids

@@ -193,8 +193,8 @@ by the grid step (in km).
 [cf-link]: https://anaconda.org/conda-forge/nllgrid
 [PyPI-badge]: http://img.shields.io/pypi/v/nllgrid.svg
 [PyPI-link]: https://pypi.python.org/pypi/nllgrid
-[license-badge]: https://img.shields.io/badge/license-CeCILL--2.1-green
-[license-link]: http://www.cecill.info/licences.en.html
+[license-badge]: https://img.shields.io/badge/license-GPLv3-green
+[license-link]: https://www.gnu.org/licenses/gpl-3.0.html
 [docs-badge]: https://readthedocs.org/projects/nllgrid/badge/?version=latest
 [docs-link]: https://nllgrid.readthedocs.io/en/latest/?badge=latest
 

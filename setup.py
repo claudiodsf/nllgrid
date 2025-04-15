@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# SPDX-License-Identifier: CECILL-2.1
+# SPDX-License-Identifier: GPL-3.0-or-later
 """
 A minimal setup script for SourceSpec.
 
