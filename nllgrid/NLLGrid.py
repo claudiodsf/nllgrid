@@ -236,9 +236,9 @@ class NLLGrid(object):
         s += f'transform: {self.get_transform_line()}'
         return s
 
-    def _repr_pretty_(self, p, cycle):
+    def _repr_pretty_(self, p, _cycle):
         """Pretty print."""
-        p.text(self.__str__())
+        p.text(str(self))
 
     def __getitem__(self, key):
         """
@@ -258,7 +258,7 @@ class NLLGrid(object):
         """
         if self.type in ['ANGLE', 'ANGLE2D']:
             return self.dip[key]
-        elif self.array is not None:
+        if self.array is not None:
             return self.array[key]
 
     @property
@@ -458,7 +458,7 @@ class NLLGrid(object):
         filename = f'{self.basename}.hdr'
 
         # read header file
-        with open(filename, 'r') as fp:
+        with open(filename, 'r', encoding='utf8') as fp:
             lines = fp.readlines()
 
         # extract information
@@ -622,7 +622,7 @@ class NLLGrid(object):
         if line is not None:
             lines.append(f'{line}\n')
 
-        with open(filename, 'w') as fp:
+        with open(filename, 'w', encoding='utf8') as fp:
             for line in lines:
                 fp.write(line)
 
@@ -894,6 +894,7 @@ class NLLGrid(object):
         This method is a python translation of the CalcErrorEllipsoid()
         function from the NonLinLoc package, written by Anthony Lomax.
         """
+        # pylint: disable=import-outside-toplevel
         try:
             from .ellipsoid import Ellipsoid3D
         except ImportError:
@@ -905,7 +906,7 @@ class NLLGrid(object):
         if cov is None:
             return None
 
-        u, s, v = np.linalg.svd(cov)
+        u, s, _v = np.linalg.svd(cov)
 
         del_chi_2 = 3.53  # 3.53: value for 68% conf
         ell = Ellipsoid3D()
@@ -1141,6 +1142,7 @@ class NLLGrid(object):
         If `figure` is not provided, the figure will be obtained from
         `ax_xy`.
         """
+        # pylint: disable=import-outside-toplevel
         import matplotlib.pyplot as plt
         from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -1168,9 +1170,9 @@ class NLLGrid(object):
         plot_xz_size = ((zmax - zmin)/(xmax - xmin))*100
         plot_yz_size = plot_xz_size / ratio
         plot_cbar_size = 5  # percent
-        xz_size = '%f %%' % plot_xz_size
-        yz_size = '%f %%' % plot_yz_size
-        cb_size = '%f %%' % plot_cbar_size
+        xz_size = f'{plot_xz_size} %'
+        yz_size = f'{plot_yz_size} %'
+        cb_size = f'{plot_cbar_size} %'
 
         # ax_xy
         divider = make_axes_locatable(ax_xy)
@@ -1244,6 +1246,7 @@ class NLLGrid(object):
         If `figure` is not provided, the figure will be obtained from
         `ax_xy`.
         """
+        # pylint: disable=import-outside-toplevel
         import matplotlib.pyplot as plt
         from matplotlib import ticker
 
@@ -1375,6 +1378,7 @@ class NLLGrid(object):
         if self.nx <= 2:
             raise NotImplementedError(
                 'This method is supported only for 3D grids')
+        # pylint: disable=import-outside-toplevel
         try:
             from .ellipsoid import Vect3D, ellipsiod2Axes, toEllipsoid3D
         except ImportError:
@@ -1718,6 +1722,7 @@ def main():
 
     Test 2: grid rotation
     """
+    # pylint: disable=import-outside-toplevel
     import matplotlib.pyplot as plt
 
     # http://stackoverflow.com/q/17190649
@@ -1757,7 +1762,7 @@ def main():
     max_xyz = grd.get_xyz_max()
 
     # Plotting
-    axes, cb = grd.plot(max_ijk, handle=True)
+    axes, _cb = grd.plot(max_ijk, handle=True)
     grd.plot_3D_point(axes, mean_xyz, color='g')
     grd.plot_3D_point(axes, max_xyz, color='r')
     grd.plot_ellipsoid(axes, mean_xyz=mean_xyz)
@@ -1779,7 +1784,7 @@ def main():
     grd.array[100, :, :] = 3.
     print(grd, '\n')
 
-    axes, cb = grd.plot(vmin=0, vmax=3, handle=True)
+    axes, _cb = grd.plot(vmin=0, vmax=3, handle=True)
     line_xy = np.vstack((
         np.linspace(25, 100, 10),
         np.linspace(10, 50, 10),
@@ -1791,7 +1796,7 @@ def main():
     grd_rec.horizontal_recenter()
     grd_rec.basename = 'recentered'
     print(grd_rec, '\n')
-    axes, cb = grd_rec.plot(vmin=0, vmax=3, handle=True)
+    axes, _cb = grd_rec.plot(vmin=0, vmax=3, handle=True)
     line_xy = grd_rec.project(line_lonlat[0], line_lonlat[1])
     axes[0].plot(line_xy[0], line_xy[1], color='k')
     line_lonlat = grd_rec.iproject(line_xy[0], line_xy[1])
@@ -1803,7 +1808,7 @@ def main():
     grd_rot.horizontal_rotate(rot_angle)
     grd_rot.basename = f'rotated_{rot_angle}'
     print(grd_rot, '\n')
-    axes, cb = grd_rot.plot(vmin=0, vmax=3, handle=True)
+    axes, _cb = grd_rot.plot(vmin=0, vmax=3, handle=True)
     line_xy = grd_rot.project(line_lonlat[0], line_lonlat[1])
     axes[0].plot(line_xy[0], line_xy[1], color='k')
     line_lonlat = grd_rot.iproject(line_xy[0], line_xy[1])
