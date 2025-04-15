@@ -978,9 +978,11 @@ class NLLGrid(object):
         # Special case of 2D grids: y is epicentral distance
         # note: this doesn't work for GLOBAL grids
         if self.nx <= 2:
-            # note: sta_x and sta_y are 0 if not defined in grid header
+            # note: sta_x and sta_y are set to 0 if not defined in grid header
             # (e.g., for model grids)
-            y = np.sqrt((x-self.sta_x)**2 + (y-self.sta_y)**2)
+            sta_x = self.sta_x if self.sta_x is not None else 0.
+            sta_y = self.sta_y if self.sta_y is not None else 0.
+            y = np.sqrt((x-sta_x)**2 + (y-sta_y)**2)
             x = self.x_orig
         min_x, max_x, min_y, max_y, min_z, max_z = self.get_extent()
         if not (min_x <= x <= max_x and min_y <= y <= max_y and
