@@ -5,6 +5,11 @@ Python class for reading and writing
 
 (c) 2015-2025 Claudio Satriano, Natalia Poiata, Robert Pickle
 
+## Unreleased
+
+- Fix for `NLLGrid.get_value()` producing an error when using 2d model grids
+- Code cleanup
+
 ## v1.5.3 - 2024-10-01
 
 - Fix bug preventing writing a newly created grid to a file, when the grid
