@@ -45,23 +45,45 @@ or
 Where, `X.Y` is the version number (e.g., `1.3`).
 You don't need to uncompress the release files yourself.
 
-### From nllgrid GitHub repository
+### Installing a development snapshot
 
 If you need a recent feature that is not in the latest release (see the
-`unreleased` section in [CHANGELOG][changelog-link]), you want to use the source code from
-the [nllgrid GitHub repository][github-repo].
+`unreleased` section in [CHANGELOG][changelog-link]), you want to use the
+more recent development snapshot from the
+[nllgrid GitHub repository][github-repo].
 
-For that, clone the project:
+#### Using pip
+
+The easiest way to install the most recent development snapshot is to download
+and install it through `pip`, using its builtin `git` client:
+
+    pip install git+https://github.com/claudiodsf/nllgrid.git
+
+Run this command again, from times to times, to keep NLLGrid updated with
+the development version.
+
+#### Cloning the NLLGrid GitHub repository
+
+If you want to take a look at the source code (and possibly modify it 😉),
+clone the project using `git`:
 
     git clone https://github.com/claudiodsf/nllgrid.git
 
+or, using SSH:
+
+    git clone git@github.com:claudiodsf/nllgrid.git
+
 (avoid using the "Download ZIP" option from the green "Code" button, since
-version number is lost), then install the code from within the `nllgrid`
-main directory by running:
+version number is lost).
 
-    pip install .
+Then, go into the `nllgrid` main directory and install the code in "editable
+mode" by running:
 
-(use `pip install -e .` to install in developer mode).
+    pip install -e .
+
+You can keep your local NLLGrid repository updated by running `git pull`
+from times to times. Thanks to `pip`'s "editable mode", you don't need to
+reinstall NLLGrid after each update.
 
 ## Getting Started
 
