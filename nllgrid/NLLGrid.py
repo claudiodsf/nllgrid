@@ -263,6 +263,7 @@ class NLLGrid(object):
 
     @property
     def array(self):
+        """The grid data as a 3D numpy array."""
         return self.__array
 
     @array.setter
@@ -275,6 +276,7 @@ class NLLGrid(object):
 
     @property
     def type(self):
+        """The type of the grid as a string"""
         return self.__type
 
     @type.setter
@@ -291,6 +293,7 @@ class NLLGrid(object):
 
     @property
     def float_type(self):
+        """The datatype for floating point numbers (FLOAT or DOUBLE)"""
         return self.__float_type
 
     @float_type.setter
@@ -308,6 +311,7 @@ class NLLGrid(object):
 
     @property
     def proj_name(self):
+        """The name of the projection"""
         return self.__proj_name
 
     @proj_name.setter
@@ -326,6 +330,7 @@ class NLLGrid(object):
 
     @property
     def proj_ellipsoid(self):
+        """The name of the projection ellipsoid"""
         return self.__proj_ellipsoid
 
     @proj_ellipsoid.setter
@@ -345,6 +350,7 @@ class NLLGrid(object):
 
     @property
     def orig_lon(self):
+        """The longitude of the grid origin"""
         return self.__orig_lon
 
     @orig_lon.setter
@@ -355,6 +361,7 @@ class NLLGrid(object):
 
     @property
     def orig_lat(self):
+        """The latitude of the grid origin"""
         return self.__orig_lat
 
     @orig_lat.setter
@@ -391,7 +398,8 @@ class NLLGrid(object):
         return bntmp.rsplit('.buf', 1)[0]
 
     def init_array(self):
-        """Initialize the grid array to zeros.
+        """
+        Initialize the grid array to zeros.
 
         Returns
         -------
@@ -1421,6 +1429,7 @@ class NLLGrid(object):
 
     @property
     def proj_function(self):
+        """The projection function to perform direct and inverse projections"""
         if self.__proj_function is not None:
             return self.__proj_function
         if self.proj_name is None:
@@ -1715,7 +1724,8 @@ class NLLGrid(object):
 
 
 def main():
-    """Test code.
+    """
+    Test code.
 
     Test 1: generate a gaussian grid and compute the 3D ellipsoid
     around the grid mean.
@@ -1727,6 +1737,9 @@ def main():
 
     # http://stackoverflow.com/q/17190649
     def gauss3D(shape=(3, 3, 3), sigmax=0.5, sigmay=0.5, sigmaz=0.5, theta=0):
+        """
+        Generate a 3D Gaussian kernel.
+        """
         m, n, k = [(ss-1.)/2. for ss in shape]
         y, x, z = np.ogrid[-m:m+1, -n:n+1, -k:k+1]
         # xy rotation
