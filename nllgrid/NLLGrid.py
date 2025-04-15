@@ -579,17 +579,17 @@ class NLLGrid(object):
                 take_off_angles[_i].fval = _val
             self.azimuth = np.array(
                 [t.ival[1]/10. for t in take_off_angles]
-                ).reshape(self.nx, self.ny, self.nz)
+            ).reshape((self.nx, self.ny, self.nz))
             self.dip = np.array(
                 [(t.ival[0]//16)/10. for t in take_off_angles]
-                ).reshape(self.nx, self.ny, self.nz)
+            ).reshape((self.nx, self.ny, self.nz))
             self.quality = np.array(
                 [t.ival[0] % 16 for t in take_off_angles]
-                ).reshape(self.nx, self.ny, self.nz)
+            ).reshape((self.nx, self.ny, self.nz))
             self.azimuth[self.quality == 0] = np.nan
             self.dip[self.quality == 0] = np.nan
         else:
-            self.array = np.array(buf).reshape(self.nx, self.ny, self.nz)
+            self.array = np.array(buf).reshape((self.nx, self.ny, self.nz))
 
     def write_hdr_file(self, basename=None):
         """
