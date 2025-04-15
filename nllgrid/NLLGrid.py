@@ -160,22 +160,17 @@ class NLLGrid(object):
     #: Spacing of grid points in z direction
     dz = 1.
     #: The grid data as a 3D numpy array
-    array = None
+    __array = None
     #: The type of the grid as a string
-    type = None
     __type = None
     #: Datatype for floating point numbers (FLOAT or DOUBLE)
-    float_type = 'FLOAT'
     __float_type = 'FLOAT'
     __np_float_type = valid_float_types[__float_type]
     #: Longitude of the grid origin
-    orig_lon = None
     __orig_lon = None
     #: Latitude of the grid origin
-    orig_lat = None
     __orig_lat = None
     #: The name of the projection
-    proj_name = None
     __proj_name = None
     #: Latitude of the first standard parallel for LAMBERT projection
     first_std_paral = None
@@ -184,10 +179,8 @@ class NLLGrid(object):
     #: Rotation angle of the grid in map view, counter-clockwise
     map_rot = 0.
     #: The name of the projection ellipsoid
-    proj_ellipsoid = None
     __proj_ellipsoid = None
     #: The projection function to perform direct and inverse projections
-    proj_function = None
     __proj_function = None
     #: Name of the station
     station = None
@@ -969,12 +962,11 @@ class NLLGrid(object):
         ValueError
             If the specified coordinates are outside of the grid's extent.
         """
-        if array is not None:
-            if self.type in ['ANGLE', 'ANGLE2D']:
-                raise NotImplementedError(
-                    f'"array" argument not implemented for {self.type} grid.')
-        else:
+        if array is None:
             array = self.array
+        elif self.type in ['ANGLE', 'ANGLE2D']:
+            raise NotImplementedError(
+                f'"array" argument not implemented for {self.type} grid.')
         # Special case of 2D grids: y is epicentral distance
         # note: this doesn't work for GLOBAL grids
         if self.nx <= 2:
@@ -994,8 +986,7 @@ class NLLGrid(object):
             dip = self.dip[i, j, k]
             quality = self.quality[i, j, k]
             return azimuth, dip, quality
-        else:
-            return array[i, j, k]
+        return array[i, j, k]
 
     def get_extent(self):
         """
@@ -1437,6 +1428,7 @@ class NLLGrid(object):
             return self.__proj_function
         if self.proj_name is None:
             raise RuntimeError('No geographical projection defined.')
+        ellps = None  # Placeholder to silence linter warnings
         if self.proj_name != 'SIMPLE':
             try:
                 ellps = ellipsoid_name_mapping[self.proj_ellipsoid]
