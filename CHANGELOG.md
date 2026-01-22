@@ -5,6 +5,11 @@ Python class for reading and writing
 
 (c) 2015-2026 Claudio Satriano, Natalia Poiata, Robert Pickle
 
+## unreleased
+
+- Minimum Python version: 3.9
+- Added support for Python 3.14
+
 ## v1.6 - 2025-04-15
 
 - License changed to GPLv3
