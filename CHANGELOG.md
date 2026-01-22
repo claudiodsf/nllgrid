@@ -3,7 +3,7 @@
 Python class for reading and writing
 [NonLinLoc](http://alomax.free.fr/nlloc) grid files.
 
-(c) 2015-2025 Claudio Satriano, Natalia Poiata, Robert Pickle
+(c) 2015-2026 Claudio Satriano, Natalia Poiata, Robert Pickle
 
 ## v1.6 - 2025-04-15
 
