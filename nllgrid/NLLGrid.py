@@ -1120,7 +1120,7 @@ class NLLGrid(object):
         self.dx = dx
         self.dy = dy
         self.dz = dz
-
+    
     def get_plot_axes(self, figure=None, ax_xy=None):
         """
         Get the axes for the three projections and colorbar axis.
@@ -1529,6 +1529,115 @@ class NLLGrid(object):
         lon, lat = self.proj_function(x1, y1, inverse=True)
         return lon, lat
 
+    def project_to_grid_indices(self, lon, lat):
+        """
+        Convert geographic coordinates (lon, lat) to theoretical grid array indices.
+        
+        Given a longitude and latitude, returns the corresponding grid indices (i, j),
+        regardless of whether they fall within the actual grid dimensions. This is
+        useful for determining where any point would theoretically lie in the grid's
+        coordinate system.
+        
+        Parameters
+        ----------
+        lon : float
+            Longitude in degrees
+        lat : float
+            Latitude in degrees
+                
+        Returns
+        -------
+        i, j : int
+            Theoretical array indices in x and y dimensions
+        """
+        # Project geographic coordinates to grid's coordinate system
+        x, y = self.project(lon, lat)
+        
+        # Shift to grid-relative coordinates
+        x -= self.x_orig
+        y -= self.y_orig
+        
+        # Get grid extent for scaling
+        x_min, x_max, y_min, y_max, _, _ = self.get_extent()
+        
+        # Convert to array indices
+        i = round(x / (x_max - x_min) * self.nx)
+        j = round(y / (y_max - y_min) * self.ny)
+        
+        return i, j
+
+    def generate_submodel(self, lat0, lat1, lon0, lon1, depth0, depth1):
+        """
+        Generates a sub-model from the given grid within specified bounds.
+        
+        Parameters
+        ----------
+        lat0, lat1 : float
+            The latitude range for the sub-model (degrees)
+        lon0, lon1 : float
+            The longitude range for the sub-model (degrees)
+        depth0, depth1 : float
+            The depth range for the sub-model (km or units matching self.z_orig)
+            
+        Returns
+        -------
+        NLLGrid
+            A new grid object containing the extracted sub-volume
+            
+        Notes
+        -----
+        - Coordinates are automatically clipped to grid boundaries
+        - Grid spacing (dx, dy, dz) remains the same as parent grid
+        - Projection parameters are inherited from parent grid
+        """
+        # Convert lat/lon to grid indices
+        i0, j0 = self.project_to_grid_indices(lon0, lat0)
+        i1, j1 = self.project_to_grid_indices(lon1, lat1)
+        
+        # Ensure indices are within grid bounds
+        i0 = np.clip(i0, 0, self.nx - 1)
+        i1 = np.clip(i1, 0, self.nx - 1)
+        j0 = np.clip(j0, 0, self.ny - 1)
+        j1 = np.clip(j1, 0, self.ny - 1)
+        
+        # Convert depths to indices
+        k0 = int(round((depth0 - self.z_orig) / self.dz))
+        k1 = int(round((depth1 - self.z_orig) / self.dz))
+        k0 = np.clip(k0, 0, self.nz - 1)
+        k1 = np.clip(k1, 0, self.nz - 1)
+        
+        # Ensure bounds
+        i0, i1 = min(i0, i1), max(i0, i1)
+        j0, j1 = min(j0, j1), max(j0, j1)
+        k0, k1 = min(k0, k1), max(k0, k1)
+        
+        # Extract sub-array
+        sub_array = self.array[i0:i1+1, j0:j1+1, k0:k1+1]
+        
+        sub_grid = nllgrid.NLLGrid()
+        sub_grid.nx, sub_grid.ny, sub_grid.nz = sub_array.shape
+        sub_grid.dx, sub_grid.dy, sub_grid.dz = self.dx, self.dy, self.dz
+        
+        # Set origin coordinates
+        sub_grid.x_orig = self.x_orig + i0 * self.dx 
+        sub_grid.y_orig = self.y_orig + j0 * self.dy
+        sub_grid.z_orig = self.z_orig + k0 * self.dz
+        
+        # Copy data array and type information
+        sub_grid.array = sub_array
+        sub_grid.type = self.type
+        sub_grid.float_type = self.float_type
+        
+        # Copy projection information
+        sub_grid.basename = self.basename
+        sub_grid.proj_name = self.proj_name
+        sub_grid.proj_ellipsoid = self.proj_ellipsoid
+        
+        # Calculate new origin lat/lon
+        sub_grid.orig_lon, sub_grid.orig_lat = sub_grid.iproject(sub_grid.x_orig, sub_grid.y_orig)
+        
+        return sub_grid    
+    
     def horizontal_recenter(self):
         """
         Move the origin of the grid's cartesian coordinate system to the grid
@@ -1706,6 +1815,197 @@ class NLLGrid(object):
         if direction not in ['up', 'down', 'u', 'd']:
             self.horizontal_recenter()
 
+    def extract_diagonal_slice(self, lon_A, lat_A, lon_B, lat_B, interp_method='cubic'):
+        """
+        Create an interpolated 2D vertical slice from
+        point A (lon_A, lat_A) to point B (lon_B, lat_B).
+        
+        Parameters
+        ----------
+        lon_A, lat_A : float 
+            Longitude and latitude of starting point A
+        lon_B, lat_B : float
+            Longitude and latitude of ending point B
+        interp_method : str, optional
+            Interpolation method ('linear', 'cubic', 'nearest'). Default is 'cubic'
+            
+        Returns
+        -------
+        interpolated_slice : ndarray
+            A 2D numpy array of interpolated values with dimension (l,z) where
+            l is the length of the diagonal in grid units
+        distance : ndarray
+            Array of distances along the profile in kilometers
+        """
+        # Input validation
+        if not all(isinstance(x, (int, float)) for x in [lon_A, lat_A, lon_B, lat_B]):
+            raise ValueError("Coordinates must be numeric values")
+        if interp_method not in ['linear', 'cubic', 'nearest']:
+            raise ValueError("interp_method must be 'linear', 'cubic', or 'nearest'")
+        
+        # Calculate true distance in kilometers for plotting
+        start_km_x, start_km_y = self.project(lon_A, lat_A)
+        end_km_x, end_km_y = self.project(lon_B, lat_B)
+        total_dist_km = np.sqrt((end_km_x - start_km_x)**2 + 
+                               (end_km_y - start_km_y)**2)
+        
+        # Convert to grid indices
+        start_x, start_y = self.project_to_grid_indices(lon_A, lat_A)
+        end_x, end_y = self.project_to_grid_indices(lon_B, lat_B)
+        
+        # Ensure coordinates are within grid bounds using clip
+        start_x = np.clip(start_x, 0, self.nx - 1)
+        end_x = np.clip(end_x, 0, self.nx - 1)
+        start_y = np.clip(start_y, 0, self.ny - 1)
+        end_y = np.clip(end_y, 0, self.ny - 1)
+        
+        # Determine number of points along the diagonal
+        # Use at least 4 points, or calculate based on diagonal distance
+        num_points = max(4, int(np.round(np.sqrt((end_x - start_x)**2 + 
+                                                (end_y - start_y)**2))) + 1)
+        
+        # Generate the indices along the diagonal
+        indices = (np.linspace(start_x, end_x, num_points, dtype=int),
+                  np.linspace(start_y, end_y, num_points, dtype=int))
+        
+        # Extract values along the diagonal
+        values = self.array[indices]
+        
+        # Create coordinate meshgrids for interpolation
+        x, y = np.indices(values.shape)
+        xi, yi = np.indices((num_points, self.array.shape[-1]))
+        
+        # Interpolate the values along the diagonal
+        from scipy.interpolate import griddata
+        interpolated_slice = griddata((x.flatten(), y.flatten()),
+                                    values.flatten(), 
+                                    (xi, yi),
+                                    method=interp_method,
+                                    fill_value=np.nan)
+        
+        # Create distance array for plotting
+        distance = np.linspace(0, total_dist_km, num_points)
+        
+        return interpolated_slice.T, distance
+
+    def create_checkerboard(self, size=25, size_z=None, val=None, degree=0.03,
+                          origin=None, spacing=0):
+        """
+        Generate a new "checkerboard" velocity model for resolution testing.
+        
+        Parameters
+        ----------
+        size : float
+            Size of the square in kilometers (x-y plane)
+        size_z : float, optional
+            Size of the checker in z direction in kilometers. If None, uses same as size
+        val : float or None, optional
+            Background velocity. If None, uses mean of original values within each checker block
+        degree : float, optional
+            Magnitude of anomaly (default +/- 3%)
+        origin : tuple (lon,lat,depth), optional
+            Vertex of primary square
+        spacing : float, optional
+            Separation between squares in kilometers
+        
+        Returns
+        -------
+        checker : NLLgrid
+            A checkerboard model with same dimensions as input model
+        """
+        # Set default vertical size if not specified
+        if size_z is None:
+            size_z = size
+            
+        # Set origin if not provided
+        if origin is None:
+            x0, y0, z0 = (0, 0, 0)
+        else:
+            x0, y0 = self.project_to_grid_indices(origin[0], origin[1])
+            z0 = int((origin[2] - self.z_orig) / self.dz)
+            
+        # Ensure valid array indices
+        x0 = int(min(self.nx - 1, max(0, x0)))
+        y0 = int(min(self.ny - 1, max(0, y0)))
+        z0 = int(min(self.nz - 1, max(0, z0)))
+        
+        # Create copy and set basename
+        checker = self.copy()
+        checker.basename = "checker." + checker.basename
+        
+        # Calculate checker sizes in grid points
+        l_x = int(round(size / self.dx))
+        l_y = int(round(size / self.dy))  # Assuming dy exists, else use dx
+        l_z = int(round(size_z / self.dz))
+        
+        # Calculate spacing in grid points
+        s = int(round(spacing / self.dx))
+        
+        # If val is None, we'll need to calculate means for each checker block
+        if val is None:
+            # First pass: calculate means for each checker block
+            block_means = {}  # Dictionary to store means for each block
+            
+            for i in range(self.nx):
+                block_i = (i - x0) // (l_x + s)
+                _i = (i - x0) % (l_x + s)
+                
+                for j in range(self.ny):
+                    block_j = (j - y0) // (l_y + s)
+                    _j = (j - y0) % (l_y + s)
+                    
+                    for k in range(self.nz):
+                        block_k = (k - z0) // (l_z + s)
+                        _k = (k - z0) % (l_z + s)
+                        
+                        # Only consider points within checker bounds (not spacing)
+                        if _i < l_x and _j < l_y and _k < l_z:
+                            block_key = (block_i, block_j, block_k)
+                            if block_key not in block_means:
+                                block_means[block_key] = {
+                                    'sum': 0.0,
+                                    'count': 0
+                                }
+                            block_means[block_key]['sum'] += self.array[i, j, k]
+                            block_means[block_key]['count'] += 1
+            
+            # Calculate actual means
+            for block_key in block_means:
+                block_means[block_key] = block_means[block_key]['sum'] / block_means[block_key]['count']
+        
+        # Create checkerboard pattern
+        for i in range(self.nx):
+            block_i = (i - x0) // (l_x + s)
+            _i = (i - x0) % (l_x + s)
+            
+            for j in range(self.ny):
+                block_j = (j - y0) // (l_y + s)
+                _j = (j - y0) % (l_y + s)
+                
+                for k in range(self.nz):
+                    block_k = (k - z0) // (l_z + s)
+                    _k = (k - z0) % (l_z + s)
+                    
+                    # Only modify within checker bounds
+                    if _i < l_x and _j < l_y and _k < l_z:
+                        # Get the base value for this block
+                        if val is None:
+                            block_key = (block_i, block_j, block_k)
+                            base_val = block_means[block_key]
+                        else:
+                            base_val = val
+                        
+                        # Determine if this is a positive or negative perturbation
+                        is_positive = (block_i + block_j + block_k) % 2 == 0
+                        
+                        # Apply perturbation
+                        if is_positive:
+                            checker.array[i, j, k] = base_val * (1 + degree)
+                        else:
+                            checker.array[i, j, k] = base_val * (1 - degree)
+        
+        return checker
+    
     def copy(self):
         """
         Generate a copy of the grid.
