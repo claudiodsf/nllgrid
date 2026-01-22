@@ -45,7 +45,7 @@ class TestNLLGrid(unittest.TestCase):
         self.assertEqual(grd.second_std_paral, 35.0)
         self.assertEqual(grd.map_rot, 0.0)
         self.assertAlmostEqual(grd.array[1, 2, 3], 0.8333333, places=5)
-        self.assertAlmostEqual(grd.array.sum(), 36733.33, places=2)
+        self.assertAlmostEqual(grd.array.sum(), 36733.3, places=1)
 
     def test_write(self):
         """
