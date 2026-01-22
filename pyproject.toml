@@ -9,11 +9,12 @@ authors = [
     { name = "Claudio Satriano", email = "satriano@ipgp.fr" },
 ]
 description = "Python class for reading and writing NonLinLoc grid files"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE.txt"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -33,11 +34,10 @@ dependencies = [
     "pyproj",
 ]
 
-[project.license]
-text = "GNU General Public License v3 or later (GPLv3+)"
-
 [project.urls]
 Homepage = "https://github.com/claudiodsf/nllgrid"
+Source = "https://github.com/claudiodsf/nllgrid"
+Documentation = "https://nllgrid.readthedocs.io"
 
 [tool.setuptools]
 packages = [
