@@ -1211,7 +1211,8 @@ class NLLGrid(object):
         return ax_xy, ax_xz, ax_yz, ax_cb
 
     def plot(self, slice_index=None, handle=False, figure=None, ax_xy=None,
-             vmin=None, vmax=None, cmap=None, line_color='white', array=None):
+             vmin=None, vmax=None, cmap=None, line_color='white', array=None,
+             isolines=False, isolines_levels=10, isolines_kwargs=None):
         """
         Plot the grid using three orthogonal projections.
 
@@ -1241,6 +1242,15 @@ class NLLGrid(object):
         array : array_like, optional
             Array to plot.
             Leave it to None to use the grid's `array` attribute.
+        isolines : bool, optional
+            Whether to overlay contour isolines on the plotted slices.
+            The default is False.
+        isolines_levels : int or array-like, optional
+            Number of contour levels or explicit contour levels to use.
+            The default is 10.
+        isolines_kwargs : dict, optional
+            Extra keyword arguments passed to `matplotlib.axes.Axes.contour`.
+            If not provided, a default style is used.
 
         Returns
         -------
@@ -1271,10 +1281,23 @@ class NLLGrid(object):
             ax_xy, ax_cb = self.get_plot_axes(figure, ax_xy)
             if figure is None:
                 figure = ax_xy.get_figure()
-            hnd = ax_xy.imshow(np.transpose(array[0, :, :]),
+            yz_data = np.transpose(array[0, :, :])
+            hnd = ax_xy.imshow(yz_data,
                                vmin=vmin, vmax=vmax, cmap=cmap,
                                origin='lower', extent=self.get_yz_extent(),
                                zorder=-10)
+            if isolines:
+                contour_kwargs = {
+                    'colors': line_color,
+                    'linewidths': 0.7,
+                    'alpha': 0.7,
+                }
+                if isolines_kwargs is not None:
+                    contour_kwargs |= isolines_kwargs
+                yy = np.arange(0, self.ny) * self.dy + self.y_orig
+                zz = np.arange(0, self.nz) * self.dz + self.z_orig
+                ax_xy.contour(yy, zz, yz_data, levels=isolines_levels,
+                              **contour_kwargs)
             fmt = '%.1e' if np.nanmax(array) <= 0.01 else '%.2f'
             cb = figure.colorbar(
                 hnd, cax=ax_cb, orientation='horizontal', format=fmt)
@@ -1301,18 +1324,40 @@ class NLLGrid(object):
         if vmax is None:
             vmax = np.nanmax(array)
 
-        hnd = ax_xy.imshow(np.transpose(array[:, :, slice_index[2]]),
+        xy_data = np.transpose(array[:, :, slice_index[2]])
+        xz_data = np.transpose(array[:, slice_index[1], :])
+        yz_data = array[slice_index[0], :, :]
+
+        hnd = ax_xy.imshow(xy_data,
                            vmin=vmin, vmax=vmax, cmap=cmap,
                            origin='lower', extent=self.get_xy_extent(),
                            zorder=-10)
-        ax_xz.imshow(np.transpose(array[:, slice_index[1], :]),
+        ax_xz.imshow(xz_data,
                      vmin=vmin, vmax=vmax, cmap=cmap,
                      origin='lower', extent=self.get_xz_extent(),
                      aspect='auto', zorder=-10)
-        ax_yz.imshow(array[slice_index[0], :, :],
+        ax_yz.imshow(yz_data,
                      vmin=vmin, vmax=vmax, cmap=cmap,
                      origin='lower', extent=self.get_zy_extent(),
                      aspect='auto', zorder=-10)
+
+        if isolines:
+            contour_kwargs = {
+                'colors': line_color,
+                'linewidths': 0.7,
+                'alpha': 0.7,
+            }
+            if isolines_kwargs is not None:
+                contour_kwargs |= isolines_kwargs
+            xx = np.arange(0, self.nx) * self.dx + self.x_orig
+            yy = np.arange(0, self.ny) * self.dy + self.y_orig
+            zz = np.arange(0, self.nz) * self.dz + self.z_orig
+            ax_xy.contour(xx, yy, xy_data, levels=isolines_levels,
+                          **contour_kwargs)
+            ax_xz.contour(xx, zz, xz_data, levels=isolines_levels,
+                          **contour_kwargs)
+            ax_yz.contour(zz, yy, yz_data, levels=isolines_levels,
+                          **contour_kwargs)
 
         x_slice, y_slice, z_slice = self.get_xyz(*slice_index)
         ax_xy.axhline(y_slice, color=line_color, linestyle='dashed', zorder=-1)

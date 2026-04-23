@@ -7,6 +7,8 @@ Python class for reading and writing
 
 ## [unreleased]
 
+- Option to plot isolines
+
 ## [1.7] - 2026-04-23
 
 - Minimum Python version: 3.9
