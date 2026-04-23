@@ -17,7 +17,7 @@ Documentation:
 If you use NLLGrid in your work, please cite:
 
 > Satriano, C., Poiata, N., & Pickle, R. (2026). NLLGrid: Python class for
-> reading and writing NonLinLoc grid files (X.Y).
+> reading and writing NonLinLoc grid files (X.Y). doi: 10.5281/zenodo.19711092
 
 Replace X.Y with the specific NLLGrid version number used in your study.
 
