@@ -5,6 +5,8 @@ Python class for reading and writing
 
 (c) 2015-2026 Claudio Satriano, Natalia Poiata, Robert Pickle
 
+## [unreleased]
+
 ## [1.7] - 2026-04-23
 
 - Minimum Python version: 3.9
@@ -86,6 +88,7 @@ Python class for reading and writing
 
 - Initial release
 
+[unreleased]: https://github.com/claudiodsf/nllgrid/compare/v1.7...HEAD
 [1.7]: https://github.com/claudiodsf/nllgrid/compare/v1.6...v1.7
 [1.6]: https://github.com/claudiodsf/nllgrid/compare/v1.5.3...v1.6
 [1.5.3]: https://github.com/claudiodsf/nllgrid/compare/v1.5.2...v1.5.3
