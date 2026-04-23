@@ -1,0 +1,26 @@
+name: Publish GitHub Release Notes
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release_version:
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+      - name: Generate Release Notes from Changelog
+        uses: CSchoel/release-notes-from-changelog@v1
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="${GITHUB_REF#refs/tags/}"
+          gh release create "$TAG_NAME" \
+            --title "$TAG_NAME" \
+            --notes-file RELEASE.md

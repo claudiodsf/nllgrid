@@ -1,0 +1,39 @@
+{
+  "title": "NLLGrid: Python class for reading and writing NonLinLoc grid files",
+  "version": "1.6",
+  "description": "NLLGrid is an open-source Python package for reading, writing, and manipulating NonLinLoc grid files used in seismological workflows.",
+  "upload_type": "software",
+  "license": "GPL-3.0-or-later",
+  "creators": [
+    {
+      "name": "Satriano, Claudio",
+      "orcid": "0000-0002-3039-2530"
+    },
+    {
+      "name": "Poiata, Natalia",
+      "orcid": "0000-0002-6412-3179"
+    },
+    {
+      "name": "Pickle, Robert",
+      "orcid": "0000-0002-8550-5256"
+    }
+  ],
+  "keywords": [
+    "seismology",
+    "nonlinloc",
+    "grid",
+    "python"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/claudiodsf/nllgrid",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://nllgrid.readthedocs.io",
+      "relation": "isDocumentedBy",
+      "scheme": "url"
+    }
+  ]
+}

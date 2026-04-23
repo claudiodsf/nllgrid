@@ -1,0 +1,45 @@
+name: Publish Release to PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  dist:
+    name: Build Release Distributions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Build Wheel and Source Distribution
+        run: pipx run build
+
+      - name: Validate Package Metadata
+        run: pipx run twine check dist/*
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: pypi-dists
+          path: dist/*
+
+  publish-to-pypi:
+    name: Publish Artifacts to PyPI
+    needs:
+      - dist
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/nllgrid
+    permissions:
+      id-token: write
+    steps:
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: pypi-dists
+          path: dist
+      - name: Upload Artifacts to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
