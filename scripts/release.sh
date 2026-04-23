@@ -236,3 +236,7 @@ echo
 echo "Done. Release commit+tag and next-cycle commit created locally."
 echo "Push manually with:"
 echo "  git push origin $(git rev-parse --abbrev-ref HEAD) $TAG"
+echo
+echo "Undo (if not pushed):"
+echo "  git tag -d $TAG"
+echo "  git reset --hard HEAD~2"
