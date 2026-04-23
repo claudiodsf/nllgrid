@@ -1,6 +1,6 @@
 {
   "title": "NLLGrid: Python class for reading and writing NonLinLoc grid files",
-  "version": "1.6",
+  "version": "1.7",
   "description": "NLLGrid is an open-source Python package for reading, writing, and manipulating NonLinLoc grid files used in seismological workflows.",
   "upload_type": "software",
   "license": "GPL-3.0-or-later",
