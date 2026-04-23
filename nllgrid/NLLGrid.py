@@ -35,7 +35,8 @@ valid_grid_types = (
     'PROB_DENSITY',
     'MISFIT',
     'ANGLE',
-    'ANGLE2D'
+    'ANGLE2D',
+    'SSST_TIMECORR'
 )
 
 valid_float_types = {

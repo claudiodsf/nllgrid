@@ -8,6 +8,7 @@ Python class for reading and writing
 ## [unreleased]
 
 - Option to plot isolines
+- Support for `SSST_TIMECORR` grid type
 
 ## [1.7] - 2026-04-23
 
